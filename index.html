@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公主醒覺系統：重生模式</title>
+    <style>
+        :root { --p-pink: #FF69B4; --h-red: #FF3B30; --gold: #FFD700; }
+        body { background-color: #FFF5F7; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; transition: 0.8s; min-height: 100vh; margin: 0; }
+        #timerDisplay { display: none; background: #000; color: var(--gold); padding: 10px 20px; border-radius: 50px; font-weight: bold; font-family: monospace; margin-bottom: 20px; border: 2px solid var(--gold); box-shadow: 0 0 10px var(--gold); }
+        .card { background: white; padding: 25px; border-radius: 35px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; border: 2px solid var(--p-pink); }
+        h1 { color: var(--p-pink); margin: 10px 0; }
+        .form-group { text-align: left; margin-bottom: 15px; }
+        label { font-size: 12px; color: #666; font-weight: bold; margin-left: 10px; }
+        select, textarea, input { width: 100%; border-radius: 15px; border: 1px solid #FFB6C1; padding: 12px; font-size: 14px; box-sizing: border-box; outline: none; margin-top: 5px; }
+        .btn { background: var(--p-pink); color: white; border: none; padding: 18px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; box-shadow: 0 5px 15px rgba(255,105,180,0.4); margin-top: 10px; }
+        .pay-area { display: none; margin-top: 20px; }
+        .hell-mode { background-color: #121212 !important; color: #eee; }
+        .hell-card { background: #1e1e1e !important; border-color: var(--h-red) !important; color: white !important; }
+    </style>
+</head>
+<body id="bg">
+    <div id="timerDisplay">⌛ 離你自定的重生剩餘：<span id="countdown">--:--:--</span></div>
+
+    <div class="card" id="mainCard">
+        <h1 id="header">👸 公主命運契約</h1>
+        
+        <div id="setupSection">
+            <div class="form-group">
+                <label>公主身分</label>
+                <select id="role">
+                    <option value="學生">純情學生妹</option>
+                    <option value="打工女">卑微打工女</option>
+                    <option value="人妻">寂寞人妻</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>你仲想沉船幾多日？ (死線計時器)</label>
+                <input type="number" id="deadline" placeholder="例如：3" min="1">
+            </div>
+            <div class="form-group">
+                <label>佢今日又做咗咩令你唔開心？</label>
+                <textarea id="msg" placeholder="輸入佢嘅衰嘢..."></textarea>
+            </div>
+            <button class="btn" onclick="startContract()">🔒 簽署重生契約</button>
+        </div>
+
+        <div id="trialSection" style="display:none;">
+            <p style="color:#8E8E93;">✨ 剩餘免費試鏡：<span id="count">3</span> 次</p>
+            <button class="btn" onclick="trigger()">🪄 聽取魔鏡審判</button>
+        </div>
+        
+        <div id="payArea" class="pay-area">
+            <h2 style="color:var(--h-red)">💀 審判降臨</h2>
+            <p>死線已到，或者你已經無藥可救。</p>
+            <div style="background: #fff; color:#000; padding:15px; border-radius:15px; margin-bottom:10px;"><b>單次鬧醒：$5</b></div>
+            <div style="background: var(--p-pink); color:#fff; padding:15px; border-radius:15px;"><b>月費供奉：$50</b></div>
+            <img src="payme.png.jpeg" alt="PayMe" style="width:180px; margin-top:15px; border-radius:10px;">
+            <p style="font-size:10px; color:#999;">付款備註 Email 以便手動解鎖</p>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 0;
+        let count = 3;
+
+        const qV = "\n\n你要記住，佢同你咁耐都冇變過，佢突然改變唔係因為你；而係佢身邊出現左一個俾你更重要嘅人。到時唔好大吵大鬧，你應該要慶幸佢放過你，你都要放過自己。";
+
+        const dictionary = {
+            "學生": [
+                "佢唔係忙，佢只係忙住同第二個傾偈啫。"+qV, "你個頭係用嚟戴皇冠，唔係用嚟裝水嘅。"+qV, "醒啦，佢根本無打算畀未來你。"+qV, "讀咁多書都係咁蠢？你以為佢真係會等你畢業？"+qV, "你只係佢排解寂寞嘅廉價課金工具。"+qV, "佢連你生日都記唔住，你仲記住佢鍾意飲乜？"+qV, "收起你啲眼淚啦，佢只會覺得你好煩。"+qV, "佢消失咗幾個鐘？佢喺度陪緊另一個女仔打機呀。"+qV, "你寫咁長篇論文畀佢，佢回個Emoji就搞掂你。"+qV, "佢話愛你，同你話聽日會早起讀書一樣咁假。"+qV, "你以為係校園愛情劇？其實你只係路人甲。"+qV, "佢連一餐飯都唔想請你食，你仲幻想緊婚禮？"+qV, "你只係佢同朋友炫耀嘅戰利品。"+qV, "醒啦，你唔係佢嘅唯一，你係佢嘅其中之一。"+qV, "佢真係愛你？定係佢身邊未出現個更正嘅？"+qV, "唔好再幻想喇，佢屋企人根本唔知你存在。"+qV, "你以為你係特別嗰個？其實佢對個個都係咁講。"+qV, "你嘅情緒對佢嚟講，連一場波都重要過你。"+qV, "你只係佢喺悶嗰陣先會諗起嘅玩具。"+qV, "收手啦，你咁樣只會令佢更睇你唔起。"+qV, "佢唔回你信息？因為佢正喺度同緊人約會呀。"+qV, "你以為付出就有回報？愛情唔係考試呀。"+qV, "佢話佢未準備好拍拖？其實只係唔想同你拍拖。"+qV, "你嘅世界圍住佢轉，佢嘅世界根本無你。"+qV, "佢連一句真心話都唔敢講，你仲信佢啲諾言？"+qV, "你以為自己係拯救佢嘅天使？其實你只係被利用嘅傻瓜。"+qV, "佢對你忽冷忽熱，只係因為佢未搵到更好嘅水溫。"+qV, "你以為佢會為你改？狗改唔到食屎呀。"+qV, "佢連你嘅名字都懶得輸入，只係用『喂』嚟稱呼你。"+qV, "你咁辛苦幫佢諗埋未來，人哋根本無諗過同你有一秒未來。"+qV, "你以為佢唔覆你係唔舒服？佢正喺第二個女仔房度笑得好開心。"+qV, "你嘅存在對佢嚟講，係可有可無嘅贈品。"+qV, "佢嘅承諾比空氣仲薄，你竟然當係寶？"+qV, "佢話想冷靜下？其實係想同第個發展下。"+qV, "你嘅溫柔係留畀愛你嘅人，唔係畀垃圾踩嘅。"+qV, "佢根本唔值得你深夜喺度喊。"+qV, "你以為佢會心疼你？佢只會覺得你情緒勒索。"+qV, "佢連朋友圈都唔敢放你，你係見唔得光呀？"+qV, "你係學生呀，讀書啦，沉咩船呀？"+qV, "佢對你嘅好，係有目的嘅溫存。"+qV, "你只係佢生活入面嘅一點點綴，連主菜都稱唔上。"+qV, "佢連花一秒鐘回你都懶，你仲喺度幫佢搵藉口？"+qV, "你以為自己係佢嘅特別？其实佢對邊個都係個套。"+qV, "佢嘅甜言蜜語只係成本最低嘅欺騙。"+qV, "你嘅心碎，對佢嚟講只係嘈音。"+qV, "佢從來無打算過要負責任。"+qV, "你以為一齊捱過就係愛？"+qV, "佢連你鍾意食咩都唔知，你仲以為佢愛你？"+qV, "收手啦，留返啲面子畀自己。"+qV, "你咁樣只會令佢覺得你好廉價。"+qV
+            ],
+            "打工女": [
+                "返工已經咁辛苦，仲要為個唔愛你嘅人喊？"+qV, "佢覆你一句『忙緊』，你就開心到好似攞獎金咁？"+qV, "你以為你係佢嘅唯一？你只係佢排解寂寞嘅廉價勞工。"+qV, "出面大把男人，你係都要喺垃圾堆度搵寶物？"+qV, "佢連少少時間都唔肯分畀你，你仲幻想自己係女主角？"+qV, "你連OT錢都無得攞，仲要喺度做佢嘅私人情緒垃圾桶？"+qV, "醒啦，佢唔會娶你，佢只會消耗你嘅青春。"+qV, "你以為係「苦盡甘來」，其實係「苦盡苦來」。"+qV, "佢連節日都唔肯陪你，你仲幫佢搵藉口？"+qV, "你嘅存款喺度減，你對佢嘅幻想喺度加，傻唔傻？"+qV, "佢只係喺需要安慰嗰陣先搵你，你係社工呀？"+qV, "你以為溫柔可以留住佢？溫柔只會令佢覺得你好欺負。"+qV, "佢唔值得你深夜喺度mon住個電話。"+qV, "你嘅同事都睇得出佢係垃圾，得你仲當佢係寶。"+qV, "唔好再用你辛苦賺返嚟嘅錢去貼個渣男喇。"+qV, "你值得更好嘅，但前提係你要先放棄呢件垃圾。"+qV, "佢連一束花都唔捨得買畀你，你仲幻想緊大屋？"+qV, "你以為一齊捱過就係愛？對佢嚟講只係節省成本。"+qV, "收起你嘅聖母心，你救唔到一個唔想被救嘅人。"+qV, "佢嘅未來規劃入面，從來都無你份。"+qV, "你以為佢係你嘅避風港？其實風浪都係佢帶畀你嘅。"+qV, "佢連帶你見朋友都唔敢，你係見唔得光嘅私生子呀？"+qV, "你嘅付出喺佢眼中係理所當然。"+qV, "醒下啦，佢根本唔配你咁樣對佢。"+qV, "你以為可以感動佢？你只係感動咗你自己。"+qV, "佢連一句對唔住都唔肯講，你仲原諒佢？"+qV, "你嘅時間係金錢，唔好浪費喺一個無結果嘅人身上。"+qV, "佢連你嘅事業都唔支持，仲要喺度拖你後腿。"+qV, "你以為佢係你嘅動力？其實佢係你嘅包袱。"+qV, "佢根本無心同你過生活。"+qV, "你嘅忍耐只會換嚟佢嘅變本加厲。"+qV, "佢連最基本嘅尊重都畀唔到你。"+qV, "你以為付出可以換嚟回報？職場都未必得，何況係佢。"+qV, "佢只係一個會說話嘅垃圾箱。"+qV, "你嘅存在對佢嚟講，只係一種便利。"+qV, "佢連你病咗都唔知，你仲關心佢食咗飯未？"+qV, "收手啦，唔好再做免費保姆。"+qV, "你以為係愛，其實係一種習慣性嘅自虐。"+qV, "佢根本唔打算畀你一個名份。"+qV, "你嘅青春值錢過佢條命。"+qV, "佢只係喺無聊嗰陣先會諗起你。"+qV, "你以為自己好偉大？其實你好卑微。"+qV, "佢連一句真心嘅讚美都無畀過你。"+qV, "你嘅眼淚唔可以換嚟佢嘅憐憫。"+qV, "佢根本唔愛你，佢只係愛你對佢嘅好。"+qV, "你值得擁有一個可以一齊進步嘅人。"+qV, "佢只會消耗你嘅能量。"+qV, "你以為可以等佢變？等收工仲容易過等佢變。"+qV, "收起你嘅幻想，回歸現實啦。"+qV, "你係一個優秀嘅職場女性，點解要喺愛情度做乞丐？"+qV
+            ],
+            "人妻": [
+                "家庭係你嘅，心係你嘅，點解要送畀個垃圾去糟蹋？"+qV, "再沉落去，你連最後嗰點尊嚴都輸埋。"+qV, "佢讚你兩句你就以為係真愛？佢對個個都係咁講。"+qV, "唔好再呃自己啦，佢嘅承諾同垃圾桶啲廢紙無分別。"+qV, "你想追求刺激，結果只係成為人哋茶餘飯後嘅笑話。"+qV, "你以為你搵到咗靈魂伴侶？其實只係搵到咗個高級騙子。"+qV, "收手啦，你咁樣只會毁咗你本來擁有嘅嘢。"+qV, "佢唔會為咗你放棄一切，佢只係想喺你度攞便宜。"+qV, "你內疚感係對嘅，因為你真係喺度做緊蠢事。"+qV, "醒啦，佢只係貪圖你嘅溫柔，唔係愛你嘅靈魂。"+qV, "你以為佢好理解你？佢只係喺度演戲呃你。"+qV, "佢連自己嘅責任都負唔到，你仲指望佢畀你幸福？"+qV, "你嘅愛對佢嚟講只係一場免費嘅表演。"+qV, "唔好再將你嘅幸福寄托喺一個隨時會走嘅人身上。"+qV, "你以為係浪漫？其實只係卑微嘅索求。"+qV, "佢只係想喺你身上搵存在感，唔係想同你過人世。"+qV, "你嘅秘密只會成為佢日後傷害你嘅武器。"+qV, "收起你啲幻想，佢唔會係你嘅救命稻草。"+qV, "你以為可以重新開始？其實只係喺度重蹈覆轍。"+qV, "佢連一句名份都畀唔到你，你仲喺度幫佢守秘密？"+qV, "你嘅付出喺佢眼中分文不值。"+qV, "醒啦，你值得擁有光明正大嘅愛，而唔係呢啲見唔得光嘅垃圾。"+qV, "唔好再為咗一棵枯樹放棄成個森林。"+qV, "你以為佢係你嘅出口？其實佢係你嘅深淵。"+qV, "收手啦，喺仲有尊嚴嗰陣走啦。"+qV, "佢根本無打算同你一齊面對未來。"+qV, "你嘅犧牲對佢嚟講只係一種理所當然嘅奉獻。"+qV, "佢連最基本嘅誠實都做唔到。"+qV, "你以為自己喺度愛，其實你喺度浪費命。"+qV, "佢根本唔值得你背叛自己嘅原則。"+qV, "你嘅幸福應該由你自己決定，唔係由一個渣男決定。"+qV, "佢只係一個喺你寂寞嗰陣出現嘅揚像。"+qV, "你以為可以喺佢度搵到溫暖？其實佢係一塊冰。"+qV, "佢連一句真誠嘅感謝都無。"+qV, "收手啦，唔好再沉迷呢種毒藥。"+qV, "你以為係命運，其實係人禍。"+qV, "佢根本唔愛你，佢只係愛你身上嘅某種價值。"+qV, "你嘅忍耐唔會換嚟佢嘅珍惜。"+qV, "佢連一個擁抱都係敷衍。"+qV, "醒下啦，你仲有細路，仲有生活。"+qV, "佢只係一個過客，唔好當佢係歸宿。"+qV, "你嘅心痛，佢根本無感覺。"+qV, "佢連一句關心都唔肯畀。"+qV, "你以為可以感動天感動地？最後只係感動咗你自己。"+qV, "佢根本唔配你嘅眼淚。"+qV, "收起你嘅溫柔，留返畀值得嘅人。"+qV, "你以為係重新出發？其實係走向毀滅。"+qV, "佢連一句實話都唔敢講。"+qV, "你值得擁有一個完整嘅家庭，唔係一個殘缺嘅夢。"+qV, "走啦，唔好回頭。"+qV
+            ]
+        };
+
+        function startContract() {
+            const days = document.getElementById('deadline').value;
+            const msg = document.getElementById('msg').value;
+            if (!days || !msg) { alert("公主，請填好死線同心情。"); return; }
+            timeLeft = days * 24 * 60 * 60;
+            document.getElementById('setupSection').style.display = 'none';
+            document.getElementById('trialSection').style.display = 'block';
+            document.getElementById('timerDisplay').style.display = 'block';
+            setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    let h = Math.floor(timeLeft / 3600);
+                    let m = Math.floor((timeLeft % 3600) / 60);
+                    let s = timeLeft % 60;
+                    document.getElementById('countdown').innerText = `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                } else { showHell(); }
+            }, 1000);
+        }
+
+        function trigger() {
+            const role = document.getElementById('role').value;
+            if (count <= 0) { showHell(); return; }
+            const truths = dictionary[role];
+            const randomTruth = truths[Math.floor(Math.random() * truths.length)];
+            alert(`🔮 魔鏡針對「${role}」的審判：\n\n「${randomTruth}」`);
+            count--;
+            document.getElementById('count').innerText = count;
+        }
+
+        function showHell() {
+            document.getElementById('bg').classList.add('hell-mode');
+            document.getElementById('mainCard').classList.add('hell-card');
+            document.getElementById('header').innerText = "💀 審判降臨";
+            document.getElementById('trialSection').style.display = 'none';
+            document.getElementById('payArea').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
