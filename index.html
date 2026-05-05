@@ -3,120 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>女皇敕令：絕情斷念</title>
+    <title>Mirror Queen 敕令</title>
     <style>
-        :root { --pink-bg: #ffeef2; --pink-accent: #ff66a3; --pink-dark: #ff3385; --yellow: #ffd700; }
+        :root { --pink-bg: #ffeef2; --pink-accent: #ff66a3; --pink-dark: #ff3385; --yellow: #ffd700; --gold: #d4af37; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--pink-bg); font-family: -apple-system, sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
+        body { background-color: var(--pink-bg); font-family: -apple-system, sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
         
-        /* 頂部黃色動態島 */
-        .status-bar { background-color: var(--yellow); width: 92%; height: 42px; margin-top: 15px; border-radius: 21px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 100; }
+        /* 頂部狀態列 */
+        .status-bar { background-color: var(--yellow); width: 92%; height: 42px; margin-top: 15px; border-radius: 21px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         
-        .header { text-align: center; margin-top: 40px; }
-        .header h1 { color: var(--pink-accent); font-size: 32px; margin: 10px 0; font-weight: 800; }
-        .subtitle { background: white; padding: 6px 15px; border-radius: 20px; color: var(--pink-dark); font-size: 12px; border: 1px solid #f0f0f0; }
+        .header { text-align: center; margin-top: 30px; }
+        .header h1 { color: var(--pink-accent); font-size: 28px; margin: 10px 0; font-weight: 800; letter-spacing: 1px; }
+        .count-tag { background: white; padding: 4px 15px; border-radius: 20px; color: var(--pink-dark); font-size: 11px; border: 1px solid #ffccd5; font-weight: bold; }
 
-        .card { background: white; width: 88%; max-width: 380px; border-radius: 30px; padding: 25px; margin-top: 35px; box-shadow: 0 10px 30px rgba(255, 102, 163, 0.1); text-align: center; }
-        textarea { width: 100%; height: 100px; border: none; font-size: 16px; color: #666; resize: none; outline: none; background: transparent; }
+        /* 輸入區域 */
+        .card { background: white; width: 88%; max-width: 380px; border-radius: 30px; padding: 25px; margin-top: 30px; box-shadow: 0 10px 30px rgba(255, 102, 163, 0.1); text-align: center; }
+        textarea { width: 100%; height: 100px; border: none; font-size: 16px; outline: none; background: transparent; color: #444; resize: none; text-align: center; }
         
-        .btn-main { background: linear-gradient(135deg, #ff99c8, #ff66a3); color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 18px; font-weight: 700; margin-top: 25px; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 102, 163, 0.3); }
+        .btn-main { background: linear-gradient(135deg, #ff99c8, #ff66a3); color: white; border: none; padding: 16px; border-radius: 30px; font-size: 18px; font-weight: 700; margin-top: 20px; cursor: pointer; width: 85%; box-shadow: 0 5px 15px rgba(255, 102, 163, 0.3); }
+
+        /* 支付與語錄彈窗 */
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.97); z-index: 1000; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; color: white; overflow-y: auto; }
         
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; color: white; }
-        #timerBox { margin-top: 20px; display: none; }
-        .timer-val { font-size: 40px; font-weight: 800; color: var(--pink-accent); font-family: monospace; }
+        .pay-header { color: var(--yellow); font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+        .pay-qr { width: 250px; border-radius: 20px; border: 4px solid white; margin: 15px 0; }
+        
+        .pay-option { background: rgba(255,255,255,0.1); width: 100%; max-width: 300px; padding: 15px; border-radius: 20px; margin: 8px 0; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; }
+        .pro-badge { color: var(--gold); border: 1px solid var(--gold); padding: 2px 8px; border-radius: 5px; font-size: 10px; vertical-align: middle; margin-left: 5px; }
+
+        #truthText { font-size: 24px; font-weight: bold; padding: 40px; line-height: 1.6; color: white; }
+        .hint { color: #666; font-size: 12px; margin-top: 20px; cursor: pointer; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div class="status-bar" id="island">4:32 🌟 女皇特權：無限次落地獄模式 📶 🔋</div>
+    <div class="status-bar" id="island">👸 Mirror Queen 正在審視你的靈魂 📶</div>
 
-    <div id="mainContent" style="width:100%; display:flex; flex-direction:column; align-items:center;">
-        <div class="header">
-            <div style="font-size:50px">🍄</div>
-            <h1>女皇敕令：絕情斷念</h1>
-            <div class="subtitle">一係俾 $5 醒，一係免費睇你發癲。 🔍</div>
-        </div>
-
-        <div class="card" id="inputCard">
-            <h3 style="color:var(--pink-accent); font-size:14px; text-align:left; margin-top:0">寫低你段卑微到落地獄嘅感情：</h3>
-            <textarea id="userInput" placeholder="雖然佢對我好差，但我仲係放唔低佢..."></textarea>
-        </div>
-
-        <button class="btn-main" onclick="startJudgement()">🚀 接受女皇洗禮</button>
-        
-        <div id="timerBox" class="card">
-            <div style="font-size:11px; letter-spacing:2px; color:#999">REBORN COUNTDOWN</div>
-            <div id="timerDisplay" class="timer-val">00:00:00</div>
-            <p style="font-size:12px; color:var(--pink-dark)">守唔住就去死，唔好搵女皇。</p>
-        </div>
+    <div class="header">
+        <div style="font-size:50px">🪞</div>
+        <h1>Mirror Queen</h1>
+        <div id="statusTag" class="count-tag">免費剩餘：5 次</div>
     </div>
 
-    <!-- 審判彈窗 -->
-    <div id="overlay" onclick="handleOverlayClick()">
-        <div style="letter-spacing:5px; color:var(--pink-accent); margin-bottom:20px">敕令審判</div>
-        <div id="truthText" style="font-size:24px; font-weight:600; line-height:1.6"></div>
-        <div id="setupTimer" class="hidden" style="margin-top:30px">
-            <p>輸入隔離天數以啟動守衛：</p>
-            <input type="number" id="daysInput" style="width:80px; padding:10px; border-radius:10px; border:none; text-align:center; font-size:18px;">
-            <br>
-            <button class="btn-main" style="padding:10px 20px; font-size:14px;" onclick="initTimer(event)">啟動重生</button>
+    <div class="card">
+        <textarea id="userInput" placeholder="輸入你段垃圾感情..."></textarea>
+    </div>
+
+    <button class="btn-main" onclick="handleAction()">🚀 接受洗禮</button>
+
+    <div id="overlay">
+        <!-- 支付牆 -->
+        <div id="payContent" class="hidden">
+            <div class="pay-header">Mirror Queen</div>
+            <p style="color:#aaa; font-size:14px; margin-bottom:10px;">次數已滿，請課金買真話：</p>
+            
+            <!-- 使用你上傳的 PayCode 圖片 -->
+            <img src="payme.png.jpeg" alt="Mirror Queen PayCode" class="pay-qr">
+            
+            <div class="pay-option" onclick="processPay(5, false)">
+                <div style="font-size:18px; font-weight:bold">$5.00 HKD</div>
+                <div style="font-size:12px; color:#bbb">解鎖 5 次（單次）</div>
+            </div>
+
+            <div class="pay-option" style="border-color: var(--pink-accent); background: rgba(255, 102, 163, 0.15);" onclick="processPay(50, true)">
+                <div style="font-size:18px; font-weight:bold; color:var(--pink-accent)">$50.00 HKD</div>
+                <div style="font-size:12px; color:#bbb">月費無限次 <span class="pro-badge">PRO</span></div>
+            </div>
+
+            <p class="hint" onclick="closeOverlay()">[ 唔敢面對？撳呢度走 ]</p>
         </div>
-        <div id="tapTip" style="color:#444; font-size:12px; margin-top:50px">(點擊畫面 繼續接受現實)</div>
+
+        <!-- 語錄顯示 -->
+        <div id="truthContent" class="hidden" onclick="closeOverlay()">
+            <div style="color:var(--pink-accent); font-size:12px; letter-spacing:3px">MIRROR TRUTH</div>
+            <div id="truthText"></div>
+            <p class="hint">(點擊畫面 繼續接受現實)</p>
+        </div>
     </div>
 
     <script>
-        const truths = [ "佢宜家可能同緊第個打得火熱，你仲喺度凝住佢會搵返你？", "你以為自己係佢嘅唯一，其實你只係佢悶嗰陣嘅廉價玩具。", "佢唔係忙，佢只係想避開你呢個麻煩。", "你嘅眼淚喺佢眼中，仲賤過地上面嘅垃圾。", "醒啦！佢從來無愛過你，佢只係愛過你對佢嘅好。", "你喺度自我感動，人哋喺出面笑你白癡。", "佢連分手都廢事同你講，你仲喺度幫佢搵藉口？", "你以為嘅刻骨銘心，對佢嚟講只係一件想快啲掉咗佢嘅舊衫。", "佢放低你只需要一秒，你記住佢就好似記住份遺產咁？", "你唔係長情，你只係無尊嚴。", "佢對你嘅「愛」，仲平過一杯過期嘅凍檸茶。", "你仲睇緊佢嘅 IG？人哋已經 block 咗你個腦啦。", "佢宜家過得好開心，得你一個喺度演緊無人睇嘅悲劇。", "你喺佢心目中嘅地位，連佢部手機粒塵都不如。", "你以為你係特別嗰個？其實你只係排緊隊嘅其中一個備胎。", "佢以前講嘅承諾，係講畀嗰陣時嘅傻仔聽，唔係講畀宜家嘅你聽。", "你仲想等佢回心轉意？除非全世界嘅男人死晒啦。", "佢一早已經行咗好遠，得你一個喺原地食緊塵。", "你嘅付出對佢嚟講唔係感動，係壓力呀，明唔明？", "佢根本唔驚失去你，因為你從來都無入過佢心。", "再搵佢你就真係賤格到無藥可救。", "你宜家個樣衰到咁，佢見到都只會覺得慶幸分咗手。", "佢嘅世界無咗你仲精彩，你嘅世界無咗佢就變廢墟？", "你以為自己係女主角？其實你連臨記都稱唔上。", "佢對你嘅溫柔係施捨，唔係愛呀。", "你仲喺度 FF 緊未來？人哋已經同第個計劃緊聽日去邊。", "佢連你個名都想唔起，你仲喺度諗緊點樣感動佢？", "你嘅深情只係一場騷擾，快啲收皮啦。", "佢唔回覆你係因為你唔值得佢用嗰幾秒鐘。", "你以為自己好大方？其實你只係卑微到入土。", "佢眼中嘅你，只係一個倒貼都唔想要嘅負擔。", "你仲想同佢做返朋友？你想做佢嘅兵定係做佢嘅笑話？", "佢一早已經厭咗你，係得你仲喺度死纏爛打。", "你嘅愛對佢嚟講，仲cheap過街邊啲傳單。", "佢同你一齊嗰陣都已經搵緊下一個，你仲以為佢好忠誠？", "你以為自己好慘？其實你只係好戇居。", "佢連道歉都唔想畀你，因為你根本唔配。", "你仲喺度執著緊過去？過去對佢嚟講係一陣屁呀。", "佢一早就睇死你離唔開佢，所以先敢咁樣糟蹋你。", "你宜家嘅堅持，喺人哋眼中係一場笑話。", "佢根本唔值得你流一滴眼淚，更何況你流咗成條河。", "你唔係放唔低佢，你係唔甘心輸畀一個渣男。", "佢對你嘅冷淡就係最好嘅回覆，明未？", "你以為自己係拯救者？其實你只係一個受害者。", "佢一早已經搵到更好嘅，得你仲喺度執垃圾。", "你嘅卑微換唔到愛，只能夠換到人哋嘅睇唔起。", "佢連最後一面都唔見你，就係想你知難而退。", "你仲喺度幻想佢會後悔？佢宜家笑緊你仲未醒呀。", "佢根本唔諗過要同你有未來，一直都係你一廂情願。", "你嘅心碎對佢嚟講，仲輕過一條頭髮。", "佢以前對你好係因為佢當時心情好，唔係因為你特別。", "你唔係唯一嘅受害者，你只係最新嗰個蠢人。", "佢嘅心入面從來無你嘅位置，連個廁所位都無。", "你仲想聽真話？真話就係佢根本無當過你係人。", "你以為自己好深情？其實你只係一個被洗腦嘅傻仔。", "佢對你嘅傷害係專登嘅，就係想你知難而退。", "你仲喺度搵緊佢愛過你嘅證據？證據就係佢宜家唔理你呀。", "佢一早已經搬走咗，得你仲喺度幫佢交租。", "你嘅存在對佢嚟講係一個錯誤，佢宜家只係修正緊。", "佢連你嘅死活都唔關心，你仲關心佢食咗飯未？", "你唔係等緊佢，你係等緊自己死心。", "佢嘅世界大把選擇，你只係其中一個最普通嘅選擇。", "你以為自己係佢嘅避風港？其實你只係一個臨時公廁。", "佢以前送嘅禮物都係用剩嘅，你仲當寶咁收埋？", "你仲喺度懷念佢陣味？佢陣味宜家留喺第個身上呀。", "佢連分手信都廢事寫，因為你連嗰幾張紙都唔值。", "你以為自己好清醒？其實你係全宇宙最盲嗰個。", "佢對你嘅殘忍，就係佢對你最後嘅溫柔。", "你仲喺度數緊佢嘅好？佢嘅好係用嚟呃下一個傻仔㗎。", "佢一早已經唔記得你生日，你仲諗緊送咩畀佢？", "你嘅執著只係在於損耗緊你自己嘅生命。", "佢根本唔配得到你嘅愛，但你竟然仲想跪求佢收下。", "你以為自己係情聖？其實你只係一個笑話嘅主角。", "佢對你嘅無視，係最狠毒嘅掌摑。", "你仲想同佢講道理？道理就係佢唔愛你，明未？", "佢一早已經換咗電話，就係唔想聽到你把聲。", "你嘅愛好似一堆垃圾，塞住咗人哋條路。", "佢連同你嘈都廢事，因為你已經無價值。", "你以為自己好難忘？其實人哋轉頭就識咗個新嘅。", "佢以前話過愛你，係因為佢當時想搵人陪，唔係想搵你。", "你仲喺度等緊奇蹟？奇蹟就係你宜家即刻死心。", "佢對你嘅利用係佢嘅本事，你被利用係你嘅營蠢。", "你以為自己係佢嘅最後一站？其實你只係一個轉車站。", "佢一早已經睇穿你離唔開佢，所以先敢咁樣糟蹋你。", "你嘅自尊心去咗邊？畀狗食咗定係畀佢踩碎咗？", "佢連你喊都想笑，你仲喺度為佢喊？", "你以為自己係個寶？其實你喺佢眼中係草。", "佢以前嘅甜言蜜語，宜家聽返都覺得係笑話。", "你仲喺度守住個空殼？靈魂一早已經去咗第度啦。", "佢對你嘅唔理不睬，就係想你知難而退，死心啦。", "你唔係放唔低佢，你係無咗個幻想唔得。", "佢嘅心腸黑過墨汁，你仲想喺入面搵光？", "你以為自己係佢嘅依靠？其實你只係佢嘅跳板。", "佢一早已經將你嘅嘢掉晒，你仲喺度收埋佢張相？", "你嘅深情係一場病，快啲去睇醫生啦。", "佢連你嘅問候都覺得噁心，你仲喺度每日一問？", "你以為自己好堅強？其實你只係麻木到無感覺。", "佢對你嘅背叛係預謀，唔係意外。", "你仲喺度想挽回？死咗嘅心係救唔返㗎。", "佢一早已經同第個影緊合照，你仲喺度修補緊舊相？", "你嘅價值唔係由佢決定，但你竟然畀佢踩到變負數。", "佢連你嘅名字都想寫錯，就係想同你劃清界線。", "你以為自己係佢嘅救命稻草？其實你只係佢嘅垃圾袋。", "佢以前話會保護你，結果傷得你最深嘅就係佢。", "你仲喺度諗緊邊度出錯？出錯喺你愛上咗一個唔識愛人嘅怪物。", "佢對你嘅冷血，係你自找嘅，因為你唔識走。", "你唔係等緊佢回頭，你係等緊自己徹底崩潰。", "佢嘅承諾係寫喺沙上面嘅，一吹就散。", "你以為自己係佢嘅港灣？其實你只係佢泊過嘅其中一個位。", "佢一早已經將你 block 晒，你仲喺度試緊密碼？", "你嘅溫柔係浪費，應該留返畀一個值得嘅人。", "佢連分手都要你提出，就係想做個好人，你仲幫佢諗？", "你以為自己好聰明？其實你被佢玩到陀陀轉。", "佢對你嘅傷害係一種解脫，你應該多謝佢分咗手。", "你仲喺度等緊佢解釋？解釋就係佢唔愛你，夠未？", "佢一早已經搵到新嘅玩具，你呢件舊嘢一早過時啦。", "你嘅付出係一種投資失敗，快啲止蝕離場啦。", "佢連你嘅生日都記錯，就係證明你喺佢心目中根本唔重要。", "你以為自己係佢嘅命根？其實你只係佢嘅絆腳石。", "佢以前講嘅永遠，係指佢想搵人陪嗰段時間嘅永遠。", "你仲喺度幻想佢會改？狗改不了吃屎，你醒啦。", "佢對你嘅絕情，係救你命嘅藥，雖然好苦。", "你唔係失戀，你係甩咗一個瘟神。", "佢嘅世界無咗你，陽光仲燦爛，你醒下啦。", "你以為自己係佢嘅唯一？其實你只係佢嘅其中一個兵。", "佢一早已經將你當成路人，得你仲喺度演緊主角。", "你嘅等待係對自己嘅殘忍，快啲停止啦。", "佢連睇你一眼都覺得攰，你仲喺度賣力表演？", "你以為自己好特別？其實你同其他傻仔無分別。", "佢以前話鍾意你嘅純真，其實係鍾意你夠蠢。", "你仲喺度死守個墳墓？愛情一早已經入咗土。", "佢對開你嘅冷漠係一種宣告，宣告你已經出局。", "你唔係無咗佢唔得，你係唔甘心畀佢甩。", "佢嘅心係冰造嘅，你用幾多熱情都溶唔到。", "你以為自己係佢嘅天使？其實你只係佢嘅僕人。", "佢一早已經同新歡去咗旅行，你仲喺度幫佢執屋？", "你嘅深情對佢嚟講係一個重擔，佢一早想掉咗佢。", "佢連你嘅眼淚都嫌污糟，你仲喺度喊？", "你以為自己好難忘？人哋一轉身就唔記得你個樣。", "佢以前話會照顧你一世，宜家連電話都唔接。", "你仲喺度幻想有奇蹟？奇蹟就係你宜家死心返去瞓覺。", "佢對你嘅羞獄係你畀機會佢嘅，因為你唔走。", "你唔係輸畀新歡，你係輸畀你自己嘅執著。", "佢嘅世界色彩繽紛，你嘅世界得返灰黑？", "你以為自己係佢嘅靈魂伴侶？其實你只係佢嘅暫時伴侶。", "佢一早已經將你嘅回憶清空，得你仲喺度 backup。", "你嘅愛係一種自殘，快啲放手啦。", "佢連同你講聲 bye 都要諗過，費事你又發癲。", "你以為自己好慘？全世界最慘嘅係你仲未醒。", "佢以前講嘅情話，宜家聽返都覺得係笑話。", "你仲喺度執著緊真相？真相就係佢玩完你，走咗。", "佢對你嘅唔耐煩，就係佢想你快啲死開。", "你唔係長情，你只係無能力搵下一個。", "佢嘅心腸係鐵做嘅，你撞落去只會損手爛腳。", "你以為自己係佢嘅救世主？其實你只係佢嘅踏腳石。", "佢一早已經將你嘅禮物掉入垃圾桶，你仲喺度裝模作樣？", "你嘅深情係一場災難，快啲逃生啦。", "佢連同你呼吸同一口空氣都覺得窒息。", "你以為自己好清高？其實你卑微到無人想睇。", "佢以前對你嘅好，係為咗宜家可以更狠咁傷你。", "你仲喺度諗住報仇？最好嘅報仇係過得比佢好。", "佢對你嘅無視，係佢對你最大嘅懲罰。", "你唔係無咗佢唔得，你係唔敢面對孤單。", "佢嘅世界無咗你，根本無影響，你醒下啦。", "你以為自己係佢嘅心頭肉？其實你只係佢嘅眼中釘。", "佢一早已經將你嘅名字從生命中劃去。", "你嘅等待係一種慢性自殺，快啲停低啦。", "佢連你死咗都未必會去你葬禮，你仲關心佢食咗飯未？", "你以為自己好難得？其實你周街都係。", "佢以前話過唔會離開，結果走得最快係佢。", "你仲喺度等佢回頭？你等佢死心可能快啲。", "佢對你嘅絕情，係佢畀你最後嘅禮物，收下啦。", "你唔係失去咗愛，你係認清咗一個爛人。", "佢嘅世界充滿歡笑，你嘅世界充滿淚水？", "你以為自己係佢嘅寶物？其實你只係佢嘅廢物。", "佢一早已經同新歡慶祝緊，你仲喺度哀悼緊過去？", "你嘅深情係一種病態，快啲去醫啦。", "佢連你嘅樣子都模糊咗，你仲喺度描繪佢個樣？", "你以為自己好難忘？其實人哋已經完全 delete 咗你。", "佢以前講嘅一生一世，宜家變咗做死都唔見。", "你仲喺度幻想未來？你嘅未來無佢先會好轉。", "佢對你嘅傷害係一種鍛鍊，雖然呢種鍛鍊好殘忍。", "你唔係愛佢，你係愛上咗嗰個對佢好嘅自己。", "佢嘅世界無咗你，依然咁轉，你唔好再自作多情。", "你以為自己係佢嘅唯一？其實你只係佢嘅其中一個玩具。", "佢一早已經將你當成空氣，你仲喺度想同佢講嘢？", "你嘅執著只會換嚟人哋嘅恥笑。", "佢連同你講分手都懶，直接消失就係回覆。", "你以為自己好慘？其實你只係好戇居。", "佢以前對你嘅溫柔，係為咗宜家可以更絕情。", "你仲喺度等緊佢回心轉意？除非太陽由西邊升起。", "佢對你嘅無視，係你自搵嘅，因為你唔肯走。", "你唔係無咗佢唔得，你係唔敢接受現實。", "佢嘅世界好大，你只係入面粒沙。", "你以為自己係佢嘅一切？其實你只係佢嘅過去式。", "佢一早已經換咗新嘅生活，得你仲喺度死守舊地。", "你嘅深情係一場騷擾，快啲停止啦。", "佢連你叫咩名都差啲唔記得。", "你以為自己好特別？其實你同其他傻仔一模一樣。", "佢以前講嘅話，你仲當成真理？", "你仲喺度死撐？個心一早碎晒啦。", "佢對你嘅殘酷，係你重生嘅契機。", "你唔係放唔低佢，你係放唔低嗰段付出。", "佢嘅心係黑嘅，你點洗都唔會變白。", "你以為自己係佢嘅救星？其實你只係佢嘅負擔。", "佢一早已經將你忘記，你仲喺度掛住佢？", "你嘅愛好似垃圾，人哋避之則吉。", "佢連你喊都覺得煩，你仲喺度為佢流淚？", "你以為自己好慘？醒啦，你只係一個傻瓜。" ];
+        let used = parseInt(localStorage.getItem('mq_used')) || 0;
+        let isPro = localStorage.getItem('mq_pro') === 'true';
 
-        let pool = [];
-        let totalSecs = 0;
-        let isTimerActive = false;
+        const truths = [
+            "佢唔係忙，佢只係唔想理你呢個廢物。",
+            "你以為係深情？喺佢眼中係騷擾呀。",
+            "望下塊鏡，你宜家個樣真係好卑微。",
+            "人哋一早換咗新伴侶，得你仲喺度守墓。",
+            "佢連分手都廢事講，就係想你自己消失。",
+            "你嘅執著，對佢嚟講只係負擔。"
+        ];
 
-        function shufflePool() {
-            pool = [...truths];
-            for (let i = pool.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [pool[i], pool[j]] = [pool[j], pool[i]];
+        function updateUI() {
+            const tag = document.getElementById('statusTag');
+            const island = document.getElementById('island');
+            if (isPro) {
+                tag.innerHTML = `PRO 會員 <span class="pro-badge">無限次</span>`;
+                tag.style.borderColor = "#d4af37";
+                tag.style.color = "#d4af37";
+                island.innerText = "👑 Mirror Queen 專屬 PRO 會員";
+            } else {
+                tag.innerText = `免費剩餘：${Math.max(0, 5 - used)} 次`;
             }
         }
 
-        function startJudgement() {
-            if (!document.getElementById('userInput').value.trim()) return alert("唔寫嘢點落地獄？");
-            if (pool.length === 0) shufflePool();
-            document.getElementById('truthText').innerText = pool.pop();
+        function handleAction() {
+            if (!document.getElementById('userInput').value.trim()) return alert("寫嘢先啦！");
+            
+            if (isPro || used < 5) {
+                showTruth();
+            } else {
+                document.getElementById('overlay').style.display = 'flex';
+                document.getElementById('payContent').classList.remove('hidden');
+                document.getElementById('truthContent').classList.add('hidden');
+            }
+        }
+
+        function showTruth() {
+            if (!isPro) {
+                used++;
+                localStorage.setItem('mq_used', used);
+            }
+            updateUI();
+            const txt = truths[Math.floor(Math.random() * truths.length)];
+            document.getElementById('truthText').innerText = txt;
             document.getElementById('overlay').style.display = 'flex';
-            document.getElementById('setupTimer').classList.remove('hidden');
+            document.getElementById('payContent').classList.add('hidden');
+            document.getElementById('truthContent').classList.remove('hidden');
         }
 
-        function handleOverlayClick() {
-            if (!isTimerActive) document.getElementById('overlay').style.display = 'none';
+        function processPay(amt, setPro) {
+            alert(`請 PayMe $${amt} 到 Mirror Queen。\n過數後請重新整理或按確定完成。`);
+            if (setPro) {
+                isPro = true;
+                localStorage.setItem('mq_pro', 'true');
+            } else {
+                used = 0;
+                localStorage.setItem('mq_used', 0);
+            }
+            updateUI();
+            closeOverlay();
         }
 
-        function initTimer(e) {
-            e.stopPropagation();
-            const days = document.getElementById('daysInput').value;
-            if (!days || days <= 0) return alert("輸入天數先啦！");
-            totalSecs = days * 86400;
-            isTimerActive = true;
+        function closeOverlay() {
             document.getElementById('overlay').style.display = 'none';
-            document.getElementById('timerBox').style.display = 'block';
-            document.getElementById('inputCard').classList.add('hidden');
-            setInterval(updateClock, 1000);
         }
 
-        function updateClock() {
-            if (totalSecs <= 0) return;
-            totalSecs--;
-            const d = Math.floor(totalSecs / 86400);
-            const h = Math.floor((totalSecs % 86400) / 3600);
-            const m = Math.floor((totalSecs % 3600) / 60);
-            const s = totalSecs % 60;
-            const str = `${d}:${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('timerDisplay').innerText = str;
-            document.getElementById('island').innerText = `🔥 敕令守衛中：${str}`;
-        }
-
-        shufflePool();
+        updateUI();
     </script>
 </body>
 </html>
