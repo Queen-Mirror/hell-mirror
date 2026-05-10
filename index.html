@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>公主醒覺系統 | Mirror Queen</title>
+    <title>醒覺系統 | Mirror Queen</title>
     <style>
         :root { --accent: #ff66a3; --bg: #fff1f4; --card: #ffffff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: "PingFang HK", "Microsoft JhengHei", sans-serif; }
@@ -23,7 +23,7 @@
         .gender-btn { flex: 1; padding: 15px; border-radius: 15px; border: 2px solid var(--accent); background: #fff; color: var(--accent); font-weight: 900; cursor: pointer; }
         .gender-btn.active { background: var(--accent); color: #fff; }
 
-        /* 【紅色圈修正】💔 分手重新計劃 */
+        /* 【紅色圈修正】💔 分手重生計劃 */
         .day-box { width: 100%; border: 2px dashed var(--accent); border-radius: 30px; padding: 20px; text-align: center; background: var(--card); margin-bottom: 20px; }
         .day-label { font-size: 11px; color: var(--accent); font-weight: 800; margin-bottom: 5px; }
         .day-input { width: 150px; border: none; border-bottom: 3px solid var(--accent); background: transparent; color: var(--accent); font-size: 60px; text-align: center; outline: none; font-weight: 300; }
@@ -43,13 +43,9 @@
 <div class="app-container">
     <div class="energy-bar" id="eb">✨ 魔法能量：5 / 5</div>
     
-    <div class="gender-selector">
-        <button class="gender-btn active" id="fBtn" onclick="setG('F')">我是公主 (女)</button>
-        <button class="gender-btn" id="mBtn" onclick="setG('M')">我是王子 (男)</button>
-    </div>
 
     <div class="day-box">
-        <div class="day-label">💔 分手重新計劃</div>
+        <div class="day-label">💔 分手重生計劃</div>
         <input type="number" id="days" class="day-input" value="0" oninput="updateUI()">
         <div style="font-size: 20px; color: var(--accent); font-weight: bold; margin-top: 5px;">日</div>
     </div>
