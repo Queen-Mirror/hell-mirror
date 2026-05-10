@@ -2,50 +2,45 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>地獄之鏡 | Rebirth System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地獄之鏡 | Rebirth</title>
     <style>
         :root { --danger: #ff3333; --bg: #0a0a0a; --card: #1a1a1a; }
-        * { box-sizing: border-box; font-family: "PingFang HK", sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; transition: 0.3s; }
+        * { box-sizing: border-box; font-family: "PingFang HK", "Microsoft JhengHei", sans-serif; }
+        body { background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
         
-        /* 震動效果 */
         @keyframes quake { 0% { transform: translate(2px, 1px); } 50% { transform: translate(-3px, -2px); } 100% { transform: translate(1px, 2px); } }
         .shaking { animation: quake 0.1s infinite; }
 
-        .app-container { width: 100%; max-width: 400px; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; }
-        .energy-bar { color: var(--danger); font-size: 13px; font-weight: bold; margin-bottom: 25px; letter-spacing: 1px; }
+        .app-container { width: 100%; max-width: 400px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
+        .status-bar { color: var(--danger); font-size: 13px; font-weight: bold; margin-bottom: 25px; letter-spacing: 1px; }
 
-        /* 輸入卡片 */
-        .card { width: 100%; background: var(--card); border: 1px solid #333; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; }
-        .label { font-size: 12px; color: #888; margin-bottom: 10px; text-transform: uppercase; }
+        .card { width: 100%; background: var(--card); border: 1px solid #333; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .label { font-size: 12px; color: #888; margin-bottom: 10px; }
         
         .day-input { background: transparent; border: none; border-bottom: 2px solid var(--danger); color: var(--danger); font-size: 60px; width: 140px; text-align: center; outline: none; font-weight: bold; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-        textarea { width: 100%; height: 80px; background: transparent; border: none; color: #ccc; font-size: 16px; outline: none; resize: none; text-align: center; }
         
-        /* 核心按鈕 */
-        .btn-hell { background: var(--danger); color: white; border: none; width: 100%; padding: 20px; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(255, 51, 51, 0.3); transition: 0.2s; }
-        .btn-hell:active { transform: scale(0.98); opacity: 0.8; }
+        textarea { width: 100%; height: 80px; background: transparent; border: none; color: #ccc; font-size: 16px; outline: none; resize: none; text-align: center; line-height: 1.5; }
+        
+        .btn-hell { background: var(--danger); color: white; border: none; width: 100%; padding: 20px; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; transition: 0.2s; box-shadow: 0 0 20px rgba(255, 51, 51, 0.3); }
+        .btn-hell:hover { background: #ff0000; transform: translateY(-2px); }
+        .btn-hell:active { transform: translateY(0); opacity: 0.8; }
 
-        /* 收費資訊 */
-        .price-tag { margin-top: 30px; font-size: 11px; color: #444; text-align: center; line-height: 1.8; }
+        .price-tag { margin-top: 30px; font-size: 11px; color: #444; text-align: center; line-height: 2; border-top: 1px solid #222; padding-top: 20px; width: 100%; }
 
-        /* 遮罩層 */
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); color: var(--danger); z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; }
-        #content { font-size: 24px; font-weight: 900; line-height: 1.6; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); color: var(--danger); z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; cursor: pointer; }
+        #content { font-size: 24px; font-weight: 900; line-height: 1.6; white-space: pre-wrap; }
     </style>
 </head>
 <body id="body">
 
 <div class="app-container">
-    <div class="energy-bar" id="ebText">Free Trials: 5 / 5</div>
+    <div class="status-bar" id="ebText">Free Trials: 5 / 5</div>
 
     <div class="card">
         <div class="label">💔 重生計時器</div>
         <input type="number" id="days" class="day-input" value="0" oninput="updateUI()">
-        <div style="color: var(--danger); margin-top: 10px; font-weight: bold; font-size: 14px;">DAYS</div>
+        <div style="color: var(--danger); margin-top: 10px; font-weight: bold;">DAYS</div>
     </div>
 
     <div class="card">
@@ -62,13 +57,13 @@
 
 <div id="overlay" onclick="this.style.display='none'">
     <div id="content"></div>
-    <div style="margin-top: 50px; color: #333; font-size: 12px;">( 點擊螢幕 繼續面對現實 )</div>
+    <div style="margin-top: 50px; color: #444; font-size: 12px;">( 點擊螢幕 返回地獄 )</div>
 </div>
 
 <script>
     let energy = 5;
 
-    // --- 語錄自定區 ---
+    // 女皇放語錄嘅位
     const truths = [
         "佢唔係忙，佢只係正同緊個比你更正、更聽話嘅女仔開緊房，連你個名都廢事提呀。","望下塊鏡，你宜家呢副死魚樣，連你自己都唔愛，憑咩覺得佢會回頭愛返你？","人哋一早換咗新伴侶，甚至連你陣味都嫌醜，得你仲喺度守住發霉紀錄等奇蹟。","佢連分手都廢事講清楚，就係因為佢連最後嗰少少尊重都唔想畀你，想你自生自滅。","再送多一條長篇大論嘅訊息，你就真係坐實咗『狗』呢個名，仲係最卑微嗰隻。","你只係佢無聊時嘅平價消遣，係佢搵唔到高級貨色嗰陣嘅贈品，明唔明白？","醒啦！世界無咗邊個都照轉，佢無咗你之後轉得仲快、仲順、仲開心呀！",
         "你嘅存在對佢嚟講係一種污染，佢宜家正努力抹走所有關於你嘅痕跡，費事新歡見到。","佢對你用冷暴力，其實係想睇下你個自尊心底線可以去到幾低，攞你嚟當笑話講。","輸咗就要認，唔好輸埋你最後嗰少少人格。你宜家死纏爛打嘅樣真係好核突。","佢連你死咗都未必會去葬禮，甚至仲會喺嗰日同新歡慶祝重獲新生，擺脫你呢粒星。","你以為自己係佢嘅港灣？其實你只係個臨時車位，人哋搵到有蓋長租位就即刻開走。",
@@ -144,7 +139,7 @@
     function updateUI() {
         const d = parseInt(document.getElementById('days').value) || 0;
         const b = document.getElementById('body');
-        // 大過 40 日就開始震
+        // 40日震動判定
         if (d >= 40) {
             b.classList.add('shaking');
         } else {
@@ -153,25 +148,25 @@
     }
 
     function launch() {
+        console.log("按鈕已撳"); // 呢句係畀 Chrome Console 睇嘅
         const d = parseInt(document.getElementById('days').value) || 0;
         const msg = document.getElementById('msg').value.trim();
         
-        if (!msg) { alert("未輸入執迷內容！"); return; }
-
-        let finalMsg = "";
-        
-        // 核心邏輯：40日判定優先
-        if (d >= 40) {
-            finalMsg = "你醒下啦，過 40 日根本就係浪費時間，精力，青春。你不如用呢啲時間充實下自己，搵過下家啦，話唔定人哋已經有人接咗手喇";
-        } else {
-            finalMsg = truths[Math.floor(Math.random() * truths.length)];
+        if (!msg) {
+            alert("未輸入執迷內容，點幫你醒？");
+            return;
         }
 
-        // 彈出真相
-        document.getElementById('content').innerText = finalMsg;
+        let result = "";
+        if (d >= 40) {
+            result = "你醒下啦，過 40 日根本就係浪費時間，精力，青春。你不如用呢啲時間充實下自己，搵過下家啦，話唔定人哋已經有人接咗手喇";
+        } else {
+            result = truths[Math.floor(Math.random() * truths.length)];
+        }
+
+        document.getElementById('content').innerText = result;
         document.getElementById('overlay').style.display = 'flex';
 
-        // 能量計算
         if (energy > 0) {
             energy--;
             document.getElementById('ebText').innerText = `Free Trials: ${energy} / 5`;
