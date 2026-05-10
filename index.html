@@ -3,105 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>重生倒數 | Mirror Queen</title>
+    <title>地獄之鏡 | Rebirth</title>
     <style>
-        /* 預設基礎變量 */
-        :root {
-            --p-ratio: 0; /* 0 為最粉, 1 為最黑 */
-            --dynamic-bg: #fff1f4;
-            --dynamic-text: #666;
-            --dynamic-accent: #ff66a3;
-            --dynamic-card: #ffffff;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, "PingFang HK", sans-serif; transition: background 0.3s, color 0.3s; }
+        :root { --danger: #ff3333; --bg: #0a0a0a; --card: #1a1a1a; }
+        * { box-sizing: border-box; font-family: "PingFang HK", sans-serif; }
+        body { background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
         
-        body { 
-            background: var(--dynamic-bg); 
-            background-attachment: fixed;
-            margin: 0; 
-            display: flex; 
-            justify-content: center; 
-            min-height: 100vh; 
-            color: var(--dynamic-text);
-        }
+        /* 震動動畫 */
+        @keyframes quake { 0% { transform: translate(2px, 1px); } 50% { transform: translate(-3px, -2px); } 100% { transform: translate(1px, 2px); } }
+        .shaking { animation: quake 0.1s infinite; }
 
-        .app-container { width: 100%; max-width: 414px; padding: 25px 20px; display: flex; flex-direction: column; align-items: center; }
-
-        /* 能量條 */
-        .magic-bar { 
-            background: var(--dynamic-accent); 
-            color: white; width: 100%; height: 45px; border-radius: 25px; 
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: bold; font-size: 14px; margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        /* 核心倒數框 */
-        .rebirth-box { 
-            width: 100%; 
-            border: 2px dashed var(--dynamic-accent); 
-            border-radius: 40px; padding: 25px; 
-            background: var(--dynamic-card); 
-            text-align: center; margin-bottom: 30px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
+        .app-container { width: 100%; max-width: 400px; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; }
         
-        .countdown-display { color: var(--dynamic-accent); font-size: 65px; font-weight: 200; line-height: 1.1; }
-        .date-picker { border: none; color: var(--dynamic-accent); font-size: 13px; text-align: center; width: 100%; outline: none; margin-top: 15px; background: transparent; cursor: pointer; border-top: 1px solid rgba(128,128,128,0.2); padding-top: 10px; }
+        /* 能量與收費提示 */
+        .status-bar { color: var(--danger); font-size: 13px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
 
-        .input-card { background: var(--dynamic-card); width: 100%; border-radius: 30px; padding: 25px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        textarea { width: 100%; height: 120px; border: none; font-size: 17px; outline: none; background: transparent; color: var(--dynamic-text); resize: none; }
+        /* 計時器卡片 */
+        .counter-card { width: 100%; background: var(--card); border: 1px solid #333; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; }
+        .label { font-size: 12px; color: #888; margin-bottom: 10px; }
+        .day-input { background: transparent; border: none; border-bottom: 2px solid var(--danger); color: var(--danger); font-size: 64px; width: 140px; text-align: center; outline: none; font-weight: bold; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
 
-        .btn-action { background: var(--dynamic-accent); color: white; border: none; padding: 20px; border-radius: 50px; font-size: 18px; font-weight: 800; width: 100%; cursor: pointer; }
+        /* 執迷輸入 */
+        .msg-card { width: 100%; background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        textarea { width: 100%; height: 80px; background: transparent; border: none; color: #ccc; font-size: 16px; outline: none; resize: none; }
+        
+        /* 執行按鈕 */
+        .btn-main { background: var(--danger); color: white; border: none; width: 100%; padding: 20px; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(255, 51, 51, 0.4); }
 
-        /* 支付與語錄層 */
-        #pay-overlay, #truth-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; background: #000; color: white; }
+        /* 收費方案表 */
+        .price-info { margin-top: 30px; font-size: 12px; color: #555; text-align: center; line-height: 1.8; }
+
+        /* 彈出層 */
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); color: var(--danger); z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; }
+        #content { font-size: 24px; font-weight: 900; line-height: 1.6; }
+        .close-btn { margin-top: 60px; color: #444; font-size: 12px; text-decoration: underline; }
     </style>
 </head>
-<body id="mainBody">
+<body id="body">
 
 <div class="app-container">
-    <div class="magic-bar" id="energyStatus">✨ 魔法能量：5</div>
+    <div class="status-bar" id="energy">Free Trials: 5 / 5</div>
 
-    <div class="rebirth-box">
-        <div style="font-size:12px; font-weight:800; margin-bottom:10px;" id="boxHint">🎀 距離重生剩餘</div>
-        <div class="countdown-display" id="daysLabel">00</div>
-        <input type="date" id="targetDate" class="date-picker" onchange="applyTimeErosion()">
+    <div class="counter-card">
+        <div class="label">💔 分手重生計時器</div>
+        <input type="number" id="days" class="day-input" value="0" oninput="checkStatus()">
+        <div style="color: var(--danger); margin-top: 10px; font-weight: bold;">DAYS</div>
     </div>
 
-    <h2 id="titleText" style="margin-bottom:20px; letter-spacing:2px;">醒覺系統</h2>
-
-    <div class="input-card">
-        <textarea id="userInput" placeholder="輸入你嘅問題..."></textarea>
+    <div class="msg-card">
+        <textarea id="msg" placeholder="寫低你仲有咩執迷不悟..."></textarea>
     </div>
 
-    <button class="btn-action" onclick="checkReality()">🪄 接受現實洗禮</button>
+    <button class="btn-main" onclick="goHell()">🔥 照鏡面對現實</button>
+
+    <div class="price-info">
+        5次後：$5/單次<br>
+        👑 VIP 月費方案：$50/月
+    </div>
 </div>
 
-<!-- 支付牆 -->
-<div id="pay-overlay">
-    <h2 style="color:red;">能量已枯竭</h2>
-    <p>日期愈近，代價愈重。請支付以換取最後嘅清醒。</p>
-    <img src="payme.png.jpeg" style="width:200px; border:2px solid white; margin:20px 0;">
-    <input type="file" id="upload" style="display:none" onchange="document.getElementById('subBtn').disabled=false">
-    <label for="upload" style="background:#333; padding:15px; border-radius:10px; width:100%; display:block;">📸 上傳過數截圖</label>
-    <button id="subBtn" class="btn-action" style="margin-top:20px;" onclick="resetEnergy()" disabled>提交核實</button>
-</div>
-
-<!-- 語錄層 -->
-<div id="truth-overlay" onclick="this.style.display='none'">
-    <div id="truth-content" style="font-size:24px; font-weight:900; line-height:1.6;"></div>
-    <div style="margin-top:50px; font-size:10px; color:#444;">點擊畫面 回到現實</div>
+<div id="overlay" onclick="this.style.display='none'">
+    <div id="content"></div>
+    <div class="close-hint" style="margin-top:40px; color:#333;">( 點擊螢幕 返回地獄 )</div>
 </div>
 
 <script>
-    let usedCount = parseInt(localStorage.getItem('mq_used')) || 0;
-    const maxDays = 30; // 預設 30 日開始變色
+    let freeCount = 5;
 
-    // 語錄庫 (純廣東話，無數字)
-    const femaleTruths = [
-
+    // --- 語錄放喺呢度，鍾意加幾多就加幾多 ---
+    const truths = [
         "佢唔係忙，佢只係正同緊個比你更正、更聽話嘅女仔開緊房，連你個名都廢事提呀。","望下塊鏡，你宜家呢副死魚樣，連你自己都唔愛，憑咩覺得佢會回頭愛返你？","人哋一早換咗新伴侶，甚至連你陣味都嫌醜，得你仲喺度守住發霉紀錄等奇蹟。","佢連分手都廢事講清楚，就係因為佢連最後嗰少少尊重都唔想畀你，想你自生自滅。","再送多一條長篇大論嘅訊息，你就真係坐實咗『狗』呢個名，仲係最卑微嗰隻。","你只係佢無聊時嘅平價消遣，係佢搵唔到高級貨色嗰陣嘅贈品，明唔明白？","醒啦！世界無咗邊個都照轉，佢無咗你之後轉得仲快、仲順、仲開心呀！",
         "你嘅存在對佢嚟講係一種污染，佢宜家正努力抹走所有關於你嘅痕跡，費事新歡見到。","佢對你用冷暴力，其實係想睇下你個自尊心底線可以去到幾低，攞你嚟當笑話講。","輸咗就要認，唔好輸埋你最後嗰少少人格。你宜家死纏爛打嘅樣真係好核突。","佢連你死咗都未必會去葬禮，甚至仲會喺嗰日同新歡慶祝重獲新生，擺脫你呢粒星。","你以為自己係佢嘅港灣？其實你只係個臨時車位，人哋搵到有蓋長租位就即刻開走。",
         "你咁慘係因為你唔肯放過你自己，你寧願喺垃圾堆入面搵糖食，都唔去買粒新嘅。","佢宜家好快樂，因為佢耳根清靜咗，唔使再聽你啲負能量。你嘅痛苦係佢快樂嘅來源。","你以為佢會喺深夜默默諗起你？佢只會喺深夜默默諗起聽日同邊個去邊度玩。","唔好再睇佢 Social Media 喇，人哋每張相笑到見牙唔見眼，就係因為生命中少咗你。","佢唔覆你，係因為佢覺得覆你一秒鐘都係浪費人生。佢寧願去刷廁所都唔想對住你。","你以為你嘅眼淚好珍貴？喺佢眼入面，你只係個情緒不穩定嘅瘋婆子，佢慶幸走得快。","你以為你係白月光？其實你只係佢抹唔走嘅一撻蚊子血，望到都覺得污糟呀。","佢唔覆你，唔係因為手機壞咗，係因為佢忙緊喺新歡面前數落你，攞你嚟做笑話。","你咁努力想變靚去證明佢錯？其實佢根本無睇你，佢宜家眼入面淨係得新歡。",
@@ -171,77 +142,47 @@
         "你仲幫佢諗藉口話佢忙？人哋喺床上面忙緊嗰陣，你有無諗過你係幾咁0n9？醒啦廢柴！","你以為你嘅堅持好感人？其實喺人哋眼中，你只係一個連自尊都唔知係乜嘅低級生物，肉酸到極點！","醒下啦！你連自己個人生都搞唔掂，憑咩要人憐憫你？你呢種自棄嘅人，連乞兒都唔想同你行埋呀！",
         "你再唔清醒去賺錢、去改變，你就一世喺呢個垃圾堆入面發霉。到時人哋同新歡生仔，你仲喺度數緊舊債！","唔好再喺度流馬尿，你啲眼淚連一公升水都換唔到。去健身房流汗啦，起碼可以令你望落去似返個人！","你以為你嘅冷戰係博弈？對佢嚟講，你唔搵佢簡直係祖宗保佑。你仲喺度 FF 佢會不安？醒啦戇居！","佢對你講嗰句『對唔住』，係想你快啲消失呀！你仲攞住呢句廢話當係寶？你個腦係咪攞去餵魚呀？","望下你自己張銀行卡，你連買份保險嘅錢都無，仲喺度諗埋晒啲情情塔塔？蠢仆街先係你最大嘅地獄呀！","你以為你嘅離開會令佢醒覺？佢只會慶幸終於甩咗你呢個負資產，佢宜家簡直係重生呀，明唔明？",
         "人哋已經換咗幾輪新對象，你仲喺度守住個已經臭咗嘅聊天室？你係咪想搞到自己連鬼都嫌你煩呀？","你嘅自尊心係咪一早已經畀狗食咗？去執返佢，洗乾淨，做個唔依附任何人嘅人，嗰陣你先係人！","最後一次警告你：你再咁樣落去，你連落地獄嘅資格都無。起身！去賺錢！去變強！去驚艷全世界呀！","你仲喺度睇佢 Online 狀態？人哋係 Online 緊同第個親熱呀！你係咪想做佢哋段關係嘅免費陪跑員？","你以為你嘅浪漫好感動？其實你嘅獨立先最迷人。你要愛你自己先至會有人愛呀！","醒下啦！唔好再為咗個垃圾浪費你嘅生命。去發瘋咁樣進步，等佢有一日見到你，要跪喺度求你睇佢一眼！"
-
-
-    // 此處模擬擴展至300句邏輯，實際運行會隨機選取
-
     ];
 
-    function applyTimeErosion() {
-        const target = new Date(document.getElementById('targetDate').value || "2026-05-30");
-        const today = new Date();
-        const diffDays = Math.ceil((target - today) / 86400000);
-        const remain = Math.max(0, diffDays);
-        
-        document.getElementById('daysLabel').innerText = remain;
-        localStorage.setItem('mq_date', document.getElementById('targetDate').value);
-
-        // 【關鍵：計算漸變比例】
-        // ratio 為 0 (仲有好多日) -> 粉紅
-        // ratio 為 1 (到咗 0 日) -> 漸變黑紅
-        let ratio = 1 - (remain / maxDays);
-        if (ratio < 0) ratio = 0;
-        if (ratio > 1) ratio = 1;
-
-        const root = document.documentElement;
-        
-        if (remain <= 0) {
-            // 徹底黑化
-            root.style.setProperty('--dynamic-bg', 'linear-gradient(180deg, #000000 0%, #3a0000 100%)');
-            root.style.setProperty('--dynamic-text', '#ffffff');
-            root.style.setProperty('--dynamic-accent', '#ff0000');
-            root.style.setProperty('--dynamic-card', '#1a1a1a');
-            document.getElementById('boxHint').innerText = "💀 終焉已至";
+    function checkStatus() {
+        const d = parseInt(document.getElementById('days').value) || 0;
+        const b = document.getElementById('body');
+        // 超過 40 日即刻開始震動震懾
+        if (d >= 40) {
+            b.classList.add('shaking');
         } else {
-            // 動態侵蝕：隨日子愈近，背景愈深
-            const lightness = 95 - (85 * ratio); // 95% 變到 10%
-            const saturation = 100 - (100 * ratio); // 彩度消失
-            const accentRed = 255 - (100 * ratio); // 粉紅變深紅
-            
-            root.style.setProperty('--dynamic-bg', `hsl(0, ${saturation}%, ${lightness}%)`);
-            root.style.setProperty('--dynamic-text', `hsl(0, 0%, ${Math.max(10, 40 - (30*ratio))}%)`);
-            root.style.setProperty('--dynamic-accent', `rgb(${accentRed}, ${102 * (1-ratio)}, ${163 * (1-ratio)})`);
-            root.style.setProperty('--dynamic-card', `rgba(255, 255, 255, ${1 - (0.9 * ratio)})`);
-            document.getElementById('boxHint').innerText = "🎀 距離重生剩餘";
+            b.classList.remove('shaking');
         }
     }
 
-    function checkReality() {
-        if (!document.getElementById('userInput').value.trim()) return;
-        if (usedCount < 5) {
-            usedCount++;
-            localStorage.setItem('mq_used', usedCount);
-            document.getElementById('energyStatus').innerText = `✨ 魔法能量：${5 - usedCount}`;
-            document.getElementById('truth-content').innerText = truths[Math.floor(Math.random() * truths.length)];
-            document.getElementById('truth-overlay').style.display = 'flex';
+    function goHell() {
+        const d = parseInt(document.getElementById('days').value) || 0;
+        const msg = document.getElementById('msg').value.trim();
+        
+        if (!msg) { alert("未輸入執迷內容，點幫你醒？"); return; }
+
+        let result = "";
+        
+        // 絕對判定：40日邏輯優先
+        if (d >= 40) {
+            result = "你醒下啦，過 40 日根本就係浪費時間，精力，青春。你不如用呢啲時間充實下自己，搵過下家啦，話唔定人哋已經有人接咗手喇";
         } else {
-            document.getElementById('pay-overlay').style.display = 'flex';
+            result = truths[Math.floor(Math.random() * truths.length)];
+        }
+
+        // 顯示結果
+        document.getElementById('content').innerText = result;
+        document.getElementById('overlay').style.display = 'flex';
+
+        // 能量計算
+        if (freeCount > 0) {
+            freeCount--;
+            document.getElementById('energy').innerText = `Free Trials: ${freeCount} / 5`;
+        } else {
+            document.getElementById('energy').innerText = "Trial Ended: $5 / Request";
         }
     }
-
-    function resetEnergy() {
-        const btn = document.getElementById('subBtn');
-        btn.innerText = "⏳ 正在核對過數流水...";
-        setTimeout(() => {
-            usedCount = 0;
-            localStorage.setItem('mq_used', 0);
-            location.reload();
-        }, 3000);
-    }
-
-    // 初始化日期與顏色
-    document.getElementById('targetDate').value = localStorage.getItem('mq_date') || "2026-05-30";
-    applyTimeErosion();
 </script>
+
 </body>
 </html>
