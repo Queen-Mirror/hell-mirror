@@ -2,25 +2,22 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>地獄之鏡 | Rebirth</title>
     <style>
         :root { --danger: #ff3333; --bg: #0a0a0a; --card: #1a1a1a; }
-        * { box-sizing: border-box; font-family: "PingFang HK", "Microsoft JhengHei", sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; font-family: "PingFang HK", sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
         
         @keyframes quake { 0% { transform: translate(2px, 1px); } 50% { transform: translate(-3px, -2px); } 100% { transform: translate(1px, 2px); } }
         .shaking { animation: quake 0.1s infinite; }
 
-        .app-container { width: 100%; max-width: 400px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
-        .status-bar { color: var(--danger); font-size: 13px; font-weight: bold; margin-bottom: 25px; letter-spacing: 1px; }
+        .app-container { width: 100%; max-width: 400px; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; }
+        .energy-bar { color: var(--danger); font-size: 13px; font-weight: bold; margin-bottom: 25px; letter-spacing: 1px; }
 
         .card { width: 100%; background: var(--card); border: 1px solid #333; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .label { font-size: 12px; color: #888; margin-bottom: 10px; text-transform: uppercase; }
-        
         .day-input { background: transparent; border: none; border-bottom: 2px solid var(--danger); color: var(--danger); font-size: 60px; width: 140px; text-align: center; outline: none; font-weight: bold; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
-
+        
         textarea { width: 100%; height: 80px; background: transparent; border: none; color: #ccc; font-size: 16px; outline: none; resize: none; text-align: center; line-height: 1.5; }
         
         .btn-hell { background: var(--danger); color: white; border: none; width: 100%; padding: 20px; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(255, 51, 51, 0.3); transition: 0.2s; }
@@ -28,44 +25,39 @@
 
         .price-tag { margin-top: 30px; font-size: 11px; color: #444; text-align: center; line-height: 1.8; width: 100%; }
 
-        /* --- 地獄遮罩層 (整合 PayMe 圖片) --- */
+        /* --- 終極收費遮罩層 --- */
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); color: var(--danger); z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; cursor: pointer; }
-        #content { font-size: 24px; font-weight: 900; line-height: 1.6; white-space: pre-wrap; }
+        #content { font-size: 22px; font-weight: 900; line-height: 1.6; white-space: pre-wrap; text-shadow: 0 0 10px rgba(255,51,51,0.5); }
         
-        /* 收費圖片與提示樣式 */
-        #payArea { display: none; margin-top: 25px; }
-        #payMePic { max-width: 250px; border: 2px solid #555; border-radius: 10px; margin-top: 15px; }
-        .pay-hint { color: #fff; font-size: 16px; font-weight: bold; }
+        #payArea { margin-top: 20px; text-align: center; }
+        #payMePic { max-width: 280px; border: 2px solid #333; border-radius: 10px; box-shadow: 0 0 20px rgba(255,51,51,0.3); }
+        .pay-hint { color: #fff; font-size: 18px; margin-top: 15px; font-weight: bold; text-shadow: 0 0 10px var(--danger); }
     </style>
 </head>
 <body id="body">
 
 <div class="app-container">
-    <div class="status-bar" id="ebText">Free Trials: 5 / 5</div>
-    
+    <div class="energy-bar" id="ebText">Free Trials: 5 / 5</div>
     <div class="card">
-        <div class="label">💔 重生計時器</div>
+        <div style="font-size:12px; color:#888; margin-bottom:10px;">💔 重生計時器</div>
         <input type="number" id="days" class="day-input" value="0" oninput="updateUI()">
         <div style="color: var(--danger); margin-top: 10px; font-weight: bold; font-size: 14px;">DAYS</div>
     </div>
-    
     <div class="card">
         <textarea id="msg" placeholder="寫低你仲有咩執迷不悟..."></textarea>
     </div>
-    
     <button class="btn-hell" onclick="launch()">🔥 準備落地獄未？</button>
-    
     <div class="price-tag">免費額度用完後：$5 / 每次<br>👑 VIP 月費無限醒：$50 / 月</div>
 </div>
 
 <div id="overlay" onclick="this.style.display='none'">
     <div id="content"></div>
-    <div id="payArea">
+    <div id="payArea" style="display:none;">
         <div class="pay-hint">買返個真相</div>
-        <img id="payMePic" src="payme.png" alt="PayMe QR Code">
-        <div style="margin-top: 15px; color: #444; font-size: 12px;">Scan 後截圖傳回即可解鎖</div>
+        <img id="payMePic" src="./payme.png" alt="PayMe QR Code">
+        <div style="margin-top: 20px; color: #555; font-size: 12px;">( Scan 後截圖傳回即可解鎖 )</div>
     </div>
-    <div style="margin-top: 50px; color: #333; font-size: 12px;">( 點擊螢幕 返回 현실 )</div>
+    <div style="margin-top: 50px; color: #222; font-size: 11px;">[ 點擊螢幕 返回現實 ]</div>
 </div>
 
 <script>
@@ -74,8 +66,17 @@
         "你仲等佢覆？人哋可能開緊房，得你一個喺度狂碌IG睇佢上線未。",
         "醒啦！佢話「想靜下」，其實只係想「冇你喺身邊咁靜下」。",
         "佢唔覆你但係狂出Threads，擺明就係完全唔在乎你感受。",
-        "你以為自己係特別？其實你只係佢寂寞嗰陣嘅其中一個水槽。"
+        "你以為自己係特別？其實你只係佢寂寞嗰陣嘅其中一個水槽。",
+        "望下你自己，為咗個唔愛你嘅人頹成咁，值得咩？"
     ];
+
+    // --- 【預載圖片】確保收費畫面即撳即現 ---
+    function preloadImage(url) {
+        let img = new Image();
+        img.src = url;
+        console.log("正在預載 PayMe 圖片...");
+    }
+    preloadImage("./payme.png"); // 開網頁即刻 Load 定
 
     function updateUI() {
         const d = parseInt(document.getElementById('days').value) || 0;
@@ -92,34 +93,32 @@
 
         if (!msg) { alert("寫啲嘢落去先可以落地獄！"); return; }
 
-        // --- 核心邏輯：判斷次數與日數 ---
-
+        // --- 核心邏輯：優先判斷能量 ---
         if (energy <= 0) {
-            // 優先：免費額度已用完
             content.innerHTML = "💔 免費額度已用完";
-            payArea.style.display = "block"; // 強制彈出圖片區
+            // ★ 強制圖片顯示 ★
+            payArea.style.display = "block";
             overlay.style.display = "flex";
-            return; // 終止程式，唔畀睇語錄
+            return; // 終止程式，保證佢睇唔到真相
         }
 
-        // 次優先：日數過大
+        // --- 有能量：判斷鬧人定語錄 ---
         let finalMsg = "";
         if (d >= 40) {
             finalMsg = "你醒下啦，過 40 日根本就係浪費時間，精力，青春。你不如用呢啲時間充實下自己，搵過下家啦，話唔定人哋已經有人接咗手喇";
         } else {
-            // 普通：隨機抽取語錄
             finalMsg = truths[Math.floor(Math.random() * truths.length)];
         }
 
-        // --- 顯示普通鬧人或語錄內容 ---
+        // --- 顯示結果並扣分 ---
         content.innerText = finalMsg;
-        payArea.style.display = "none"; // 能量未用完，隱藏圖片區
+        payArea.style.display = "none"; // 隱藏圖片區
         overlay.style.display = "flex";
 
-        // --- 扣能量 ---
         energy--;
         document.getElementById('ebText').innerText = "Free Trials: " + energy + " / 5";
     }
 </script>
+
 </body>
 </html>
