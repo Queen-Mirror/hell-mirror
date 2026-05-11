@@ -8,19 +8,30 @@
         :root { --danger: #ff3333; --bg: #0a0a0a; --card: #1a1a1a; }
         * { box-sizing: border-box; font-family: "PingFang HK", "Microsoft JhengHei", sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        
         @keyframes quake { 0% { transform: translate(2px, 1px); } 50% { transform: translate(-3px, -2px); } 100% { transform: translate(1px, 2px); } }
         .shaking { animation: quake 0.1s infinite; }
+
         .app-container { width: 100%; max-width: 400px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
         .energy-bar { color: var(--danger); font-size: 13px; font-weight: bold; margin-bottom: 25px; letter-spacing: 1px; }
-        .card { width: 100%; background: var(--card); border: 1px solid #333; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; }
+
+        .card { width: 100%; background: var(--card); border: 1px solid #333; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .day-input { background: transparent; border: none; border-bottom: 2px solid var(--danger); color: var(--danger); font-size: 60px; width: 140px; text-align: center; outline: none; font-weight: bold; }
-        textarea { width: 100%; height: 80px; background: transparent; border: none; color: #ccc; font-size: 16px; outline: none; resize: none; text-align: center; }
-        .btn-hell { background: var(--danger); color: white; border: none; width: 100%; padding: 20px; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(255, 51, 51, 0.3); }
-        .price-tag { margin-top: 30px; font-size: 11px; color: #444; text-align: center; line-height: 1.8; width: 100%; }
         
+        textarea { width: 100%; height: 80px; background: transparent; border: none; color: #ccc; font-size: 16px; outline: none; resize: none; text-align: center; line-height: 1.5; }
+        
+        .btn-hell { background: var(--danger); color: white; border: none; width: 100%; padding: 20px; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(255, 51, 51, 0.3); transition: 0.2s; }
+        .btn-hell:active { transform: scale(0.95); }
+
+        .price-tag { margin-top: 30px; font-size: 11px; color: #444; text-align: center; line-height: 1.8; width: 100%; }
+
+        /* --- 遮罩層 --- */
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); color: var(--danger); z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; cursor: pointer; }
         #content { font-size: 24px; font-weight: 900; line-height: 1.6; white-space: pre-wrap; }
+        
+        /* 收費圖片：預設隱藏 */
         #payMePic { max-width: 250px; border: 2px solid #555; border-radius: 10px; margin-top: 20px; display: none; }
+        .pay-hint { display: none; color: #fff; font-size: 16px; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body id="body">
@@ -30,7 +41,7 @@
     <div class="card">
         <div style="font-size:12px; color:#888; margin-bottom:10px;">💔 重生計時器</div>
         <input type="number" id="days" class="day-input" value="0" oninput="updateUI()">
-        <div style="color: var(--danger); margin-top: 10px; font-weight: bold;">DAYS</div>
+        <div style="color: var(--danger); margin-top: 10px; font-weight: bold; font-size: 14px;">DAYS</div>
     </div>
     <div class="card">
         <textarea id="msg" placeholder="寫低你仲有咩執迷不悟..."></textarea>
@@ -41,9 +52,9 @@
 
 <div id="overlay" onclick="this.style.display='none'">
     <div id="content"></div>
-    <img id="payMePic" src="" alt="PayMe QR Code">
-    <div id="payText" style="display:none; margin-top:15px; color:#fff; font-size:14px; font-weight:bold;">買返個真相 (截圖傳回解鎖)</div>
-    <div style="margin-top: 50px; color: #333; font-size: 11px;">( 點擊螢幕 返回現實 )</div>
+    <img id="payMePic" src="payme.png.jpeg" alt="PayMe QR Code">
+    <div id="payHint" class="pay-hint">買返個真相 (截圖傳回解鎖)</div>
+    <div style="margin-top: 50px; color: #333; font-size: 12px;">( 點擊螢幕 返回現實 )</div>
 </div>
 
 <script>
@@ -67,16 +78,15 @@
         const overlay = document.getElementById('overlay');
         const content = document.getElementById('content');
         const payMePic = document.getElementById('payMePic');
-        const payText = document.getElementById('payText');
+        const payHint = document.getElementById('payHint');
 
-        if (!msg) { alert("寫啲嘢先啦！"); return; }
+        if (!msg) { alert("寫啲嘢落去先可以落地獄！"); return; }
 
         if (energy <= 0) {
-            // 優先顯示：能量耗盡 + 女皇的 payme.png
+            // 能量用完：顯示收費圖片
             content.innerHTML = "💔 免費額度已用完";
-            payMePic.src = "payme.png"; // 這裡已經修正為女皇的檔名
             payMePic.style.display = "block";
-            payText.style.display = "block";
+            payHint.style.display = "block";
             overlay.style.display = "flex";
             return;
         }
@@ -88,9 +98,10 @@
             finalMsg = truths[Math.floor(Math.random() * truths.length)];
         }
 
+        // 能量未用完：顯示鬧人文字，隱藏圖片
         content.innerText = finalMsg;
         payMePic.style.display = "none";
-        payText.style.display = "none";
+        payHint.style.display = "none";
         overlay.style.display = "flex";
 
         energy--;
