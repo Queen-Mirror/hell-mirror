@@ -8,7 +8,7 @@
         :root { --danger: #ff3333; --bg: #0a0a0a; --card: #1a1a1a; }
         * { box-sizing: border-box; font-family: "PingFang HK", "Microsoft JhengHei", sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        /* 絕對禁止震動 */
+        /* 徹底靜止，絕不震動 */
         body { background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; overflow: hidden; }
         
         .app-container { width: 100%; max-width: 400px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
@@ -16,7 +16,7 @@
 
         .card { width: 100%; background: var(--card); border: 1px solid #333; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; }
         
-        /* 徹底除掉箭嘴 */
+        /* 除去箭嘴 */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .day-input { background: transparent; border: none; border-bottom: 2px solid var(--danger); color: var(--danger); font-size: 60px; width: 140px; text-align: center; outline: none; font-weight: bold; -moz-appearance: textfield; }
         
@@ -24,7 +24,7 @@
         
         .btn-hell { background: var(--danger); color: white; border: none; width: 100%; padding: 20px; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; }
 
-        /* 彈窗 */
+        /* 彈窗樣式 */
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); color: var(--danger); z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; }
         #content { font-size: 22px; font-weight: 900; line-height: 1.6; white-space: pre-wrap; }
         
@@ -55,7 +55,7 @@
     <div id="payArea">
         <div style="color:#fff; font-weight:bold;">買返個真相</div>
         <img id="payMePic" src="payme.png.jpeg">
-        <div style="margin-top: 10px; color: #888; font-size: 11px;">Scan 後截圖傳回領取密碼</div>
+        <div style="margin-top: 10px; color: #888; font-size: 11px;">Scan 後截圖傳回領取解鎖碼</div>
         <div class="unlock-box">
             <input type="text" id="unlockCode" class="unlock-input" placeholder="4位碼">
             <button class="btn-unlock" onclick="checkUnlock()">解鎖</button>
@@ -68,7 +68,7 @@
     let energy = 5;
     let sessionUnlocked = false;
 
-    // 今日 12 號，Code 係 1228
+    // 今日 12 號，密碼係 1228
     function getMagicCode() {
         const d = new Date().getDate();
         return (d * 17 + 1024).toString().slice(-4); 
@@ -78,38 +78,39 @@
         const input = document.getElementById('unlockCode').value.trim();
         if (input === getMagicCode()) {
             sessionUnlocked = true;
-            alert("已成功解鎖！");
+            alert("已解鎖！");
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('ebText').innerText = "VIP ACCESS";
             document.getElementById('ebText').style.color = "#ffd700";
         } else {
-            alert("解鎖碼錯咗。");
+            alert("碼錯咗。");
         }
     }
 
     function launch() {
-        // 第一步：攞資料
-        const daysField = document.getElementById('days');
-        const d = parseInt(daysField.value) || 0;
+        const d = parseInt(document.getElementById('days').value) || 0;
         const msg = document.getElementById('msg').value.trim();
-        
         const overlay = document.getElementById('overlay');
         const content = document.getElementById('content');
         const payArea = document.getElementById('payArea');
 
-        // 第二步：基本檢查
         if (!msg) { alert("內容呢？"); return; }
 
-        // 第三步：邏輯判定（日數大於等於 40 係最高指令）
+        // --- 1. 獨立彈窗判定：超過 40 日 ---
         if (d >= 40) {
             content.innerText = "你醒下啦，過 40 日根本就係浪費時間，精力，青春。你不如用呢啲時間充實下自己，搵過下家啦，話唔定人哋已經有人接咗手喇";
             payArea.style.display = "none";
-        } 
-        else if (energy <= 0 && !sessionUnlocked) {
+            overlay.style.display = "flex";
+            return; // 獨立彈出後直接結束，唔扣 energy
+        }
+
+        // --- 2. 正常語錄/收費邏輯 ---
+        overlay.style.display = "flex";
+        
+        if (energy <= 0 && !sessionUnlocked) {
             content.innerText = "💔 免費額度已用完";
             payArea.style.display = "block";
-        } 
-        else {
+        } else {
             const truths = [
                 "你仲等佢覆？人哋可能開緊房，得你一個喺度狂碌IG睇佢上線未。",
                 "醒啦！佢話「想靜下」，其實只係想「冇你喺身邊咁靜下」。",
@@ -123,9 +124,6 @@
                 document.getElementById('ebText').innerText = "Free Trials: " + energy + " / 5";
             }
         }
-
-        // 第四步：最後先彈出，確保內容已經塞入去
-        overlay.style.display = "flex";
     }
 </script>
 </body>
