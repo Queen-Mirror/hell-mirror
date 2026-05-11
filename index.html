@@ -8,30 +8,38 @@
         :root { --danger: #ff3333; --bg: #0a0a0a; --card: #1a1a1a; }
         * { box-sizing: border-box; font-family: "PingFang HK", "Microsoft JhengHei", sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        
         @keyframes quake { 0% { transform: translate(2px, 1px); } 50% { transform: translate(-3px, -2px); } 100% { transform: translate(1px, 2px); } }
         .shaking { animation: quake 0.1s infinite; }
+
         .app-container { width: 100%; max-width: 400px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
-        .energy-bar { color: var(--danger); font-size: 13px; font-weight: bold; margin-bottom: 25px; letter-spacing: 1px; }
+        .status-bar { color: var(--danger); font-size: 13px; font-weight: bold; margin-bottom: 25px; letter-spacing: 1px; }
+
         .card { width: 100%; background: var(--card); border: 1px solid #333; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .day-input { background: transparent; border: none; border-bottom: 2px solid var(--danger); color: var(--danger); font-size: 60px; width: 140px; text-align: center; outline: none; font-weight: bold; }
+        
+        /* --- 修正：唔要黃圈箭嘴 --- */
+        .day-input::-webkit-outer-spin-button,
+        .day-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .day-input { background: transparent; border: none; border-bottom: 2px solid var(--danger); color: var(--danger); font-size: 60px; width: 140px; text-align: center; outline: none; font-weight: bold; -moz-appearance: textfield; }
+        
         textarea { width: 100%; height: 80px; background: transparent; border: none; color: #ccc; font-size: 16px; outline: none; resize: none; text-align: center; line-height: 1.5; }
-        .btn-hell { background: var(--danger); color: white; border: none; width: 100%; padding: 20px; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(255, 51, 51, 0.3); transition: 0.2s; }
-        .btn-hell:active { transform: scale(0.95); }
-        .price-tag { margin-top: 30px; font-size: 11px; color: #444; text-align: center; line-height: 1.8; width: 100%; }
         
+        .btn-hell { background: var(--danger); color: white; border: none; width: 100%; padding: 20px; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(255, 51, 51, 0.3); }
+        .btn-hell:active { opacity: 0.8; transform: scale(0.95); }
+
+        .price-tag { margin-top: 30px; font-size: 11px; color: #444; text-align: center; line-height: 1.8; width: 100%; border-top: 1px solid #222; padding-top: 20px; }
+
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); color: var(--danger); z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; cursor: pointer; }
-        #content { font-size: 24px; font-weight: 900; line-height: 1.6; white-space: pre-wrap; }
+        #content { font-size: 22px; font-weight: 900; line-height: 1.6; white-space: pre-wrap; text-shadow: 0 0 10px rgba(255,51,51,0.5); }
         
-        /* 圖片區域：確保檔名 payme.png.jpeg 準確對接 */
-        #payArea { display: none; margin-top: 25px; }
-        #payMePic { max-width: 250px; border: 2px solid #555; border-radius: 10px; margin-top: 15px; }
-        .pay-hint { color: #fff; font-size: 16px; font-weight: bold; }
+        #payArea { display: none; margin-top: 20px; }
+        #payMePic { max-width: 250px; border: 1px dashed #555; border-radius: 10px; margin-top: 15px; }
     </style>
 </head>
 <body id="body">
 
 <div class="app-container">
-    <div class="energy-bar" id="ebText">Free Trials: 5 / 5</div>
+    <div class="status-bar" id="ebText">Free Trials: 5 / 5</div>
     <div class="card">
         <div style="font-size:12px; color:#888; margin-bottom:10px;">💔 重生計時器</div>
         <input type="number" id="days" class="day-input" value="0" oninput="updateUI()">
@@ -47,11 +55,11 @@
 <div id="overlay" onclick="this.style.display='none'">
     <div id="content"></div>
     <div id="payArea">
-        <div class="pay-hint">買返個真相</div>
+        <div style="color:#fff; font-weight:bold;">買返個真相</div>
         <img id="payMePic" src="payme.png.jpeg" alt="PayMe QR Code">
-        <div style="margin-top: 15px; color: #444; font-size: 12px;">Scan 後截圖傳回即可解鎖</div>
+        <div style="margin-top: 10px; color: #444; font-size: 12px;">( Scan 後截圖傳回即可解鎖 )</div>
     </div>
-    <div style="margin-top: 50px; color: #333; font-size: 11px;">( 點擊螢幕 返回 현실 )</div>
+    <div style="margin-top: 50px; color: #333; font-size: 11px;">( 點擊螢幕 返回現實 )</div>
 </div>
 
 <script>
@@ -65,8 +73,9 @@
 
     function updateUI() {
         const d = parseInt(document.getElementById('days').value) || 0;
-        if (d >= 40) document.getElementById('body').classList.add('shaking');
-        else document.getElementById('body').classList.remove('shaking');
+        const b = document.getElementById('body');
+        if (d >= 40) b.classList.add('shaking');
+        else b.classList.remove('shaking');
     }
 
     function launch() {
@@ -76,31 +85,28 @@
         const content = document.getElementById('content');
         const payArea = document.getElementById('payArea');
 
-        if (!msg) { alert("寫啲嘢先啦！"); return; }
+        if (!msg) { alert("未輸入執迷內容，點幫你醒？"); return; }
 
-        // --- 判定收費阻斷 ---
-        if (energy <= 0) {
+        // --- 核心修復：優先判定日數 ---
+        if (d >= 40) {
+            content.innerText = "你醒下啦，過 40 日根本就係浪費時間，精力，青春。你不如用呢啲時間充實下自己，搵過下家啦，話唔定人哋已經有人接咗手喇";
+            payArea.style.display = "none";
+            overlay.style.display = "flex";
+        } 
+        // --- 其次先判定次數 ---
+        else if (energy <= 0) {
             content.innerHTML = "💔 免費額度已用完";
             payArea.style.display = "block";
             overlay.style.display = "flex";
-            return; 
+        } 
+        // --- 普通情況 ---
+        else {
+            content.innerText = truths[Math.floor(Math.random() * truths.length)];
+            payArea.style.display = "none";
+            overlay.style.display = "flex";
+            energy--;
+            document.getElementById('ebText').innerText = "Free Trials: " + energy + " / 5";
         }
-
-        // --- 判定顯示內容 ---
-        let finalMsg = "";
-        if (d >= 40) {
-            finalMsg = "你醒下啦，過 40 日根本就係浪費時間，精力，青春。你不如用呢啲時間充實下自己，搵過下家啦，話唔定人哋已經有人接咗手喇";
-        } else {
-            finalMsg = truths[Math.floor(Math.random() * truths.length)];
-        }
-
-        // --- 執行顯示與扣分 ---
-        content.innerText = finalMsg;
-        payArea.style.display = "none";
-        overlay.style.display = "flex";
-
-        energy--;
-        document.getElementById('ebText').innerText = "Free Trials: " + energy + " / 5";
     }
 </script>
 </body>
