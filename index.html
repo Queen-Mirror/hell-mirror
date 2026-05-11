@@ -6,22 +6,30 @@
     <title>地獄之鏡 | Rebirth</title>
     <style>
         :root { --danger: #ff3333; --bg: #0a0a0a; --card: #1a1a1a; }
-        * { box-sizing: border-box; font-family: "PingFang HK", sans-serif; }
-        body { background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+        * { box-sizing: border-box; font-family: "PingFang HK", "Microsoft JhengHei", sans-serif; }
+        body { background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        
         @keyframes quake { 0% { transform: translate(2px, 1px); } 50% { transform: translate(-3px, -2px); } 100% { transform: translate(1px, 2px); } }
         .shaking { animation: quake 0.1s infinite; }
+
         .app-container { width: 100%; max-width: 400px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
-        .energy-bar { color: var(--danger); font-size: 13px; font-weight: bold; margin-bottom: 25px; }
-        .card { width: 100%; background: var(--card); border: 1px solid #333; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; }
+        .energy-bar { color: var(--danger); font-size: 13px; font-weight: bold; margin-bottom: 25px; letter-spacing: 1px; }
+
+        .card { width: 100%; background: var(--card); border: 1px solid #333; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .day-input { background: transparent; border: none; border-bottom: 2px solid var(--danger); color: var(--danger); font-size: 60px; width: 140px; text-align: center; outline: none; font-weight: bold; }
-        textarea { width: 100%; height: 80px; background: transparent; border: none; color: #ccc; font-size: 16px; outline: none; resize: none; text-align: center; }
-        .btn-hell { background: var(--danger); color: white; border: none; width: 100%; padding: 20px; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(255, 51, 51, 0.3); }
-        .price-tag { margin-top: 30px; font-size: 11px; color: #444; text-align: center; line-height: 1.8; width: 100%; }
         
-        /* 彈出遮罩層 */
+        textarea { width: 100%; height: 80px; background: transparent; border: none; color: #ccc; font-size: 16px; outline: none; resize: none; text-align: center; line-height: 1.5; }
+        
+        .btn-hell { background: var(--danger); color: white; border: none; width: 100%; padding: 20px; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(255, 51, 51, 0.3); transition: 0.2s; }
+        .btn-hell:active { transform: scale(0.95); }
+
+        .price-tag { margin-top: 30px; font-size: 11px; color: #444; text-align: center; line-height: 1.8; width: 100%; }
+
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); color: var(--danger); z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; cursor: pointer; }
-        #content { font-size: 24px; font-weight: 900; line-height: 1.6; white-space: pre-wrap; }
-        .pay-code { color: #555; font-size: 14px; margin-top: 20px; border: 1px dashed #555; padding: 10px; }
+        #content { font-size: 22px; font-weight: 900; line-height: 1.6; white-space: pre-wrap; }
+        
+        #payMePic { max-width: 280px; border: 2px solid #333; margin-top: 20px; border-radius: 10px; }
+        .pay-hint { color: #fff; font-size: 18px; margin-top: 15px; font-weight: bold; text-shadow: 0 0 10px var(--danger); }
     </style>
 </head>
 <body id="body">
@@ -31,7 +39,7 @@
     <div class="card">
         <div style="font-size:12px; color:#888; margin-bottom:10px;">💔 重生計時器</div>
         <input type="number" id="days" class="day-input" value="0" oninput="updateUI()">
-        <div style="color: var(--danger); margin-top: 10px; font-weight: bold;">DAYS</div>
+        <div style="color: var(--danger); margin-top: 10px; font-weight: bold; font-size: 14px;">DAYS</div>
     </div>
     <div class="card">
         <textarea id="msg" placeholder="寫低你仲有咩執迷不悟..."></textarea>
@@ -43,10 +51,11 @@
 <div id="overlay" onclick="this.style.display='none'">
     <div id="content"></div>
     <div id="payArea" style="display:none;">
-        <div class="pay-code">入數後請截圖傳回：PayMe 9XXX XXXX</div>
-        <div style="margin-top: 20px; font-size: 14px; color: #fff;">[ 畀錢買返條命 ]</div>
+        <div class="pay-hint">買返個真相</div>
+        <img id="payMePic" src="" alt="PayMe QR Code">
+        <div style="margin-top: 20px; color: #555; font-size: 12px;">( Scan 後截圖傳回即可解鎖 )</div>
     </div>
-    <div id="footerText" style="margin-top: 50px; color: #333; font-size: 12px;">( 點擊螢幕 返回現實 )</div>
+    <div style="margin-top: 50px; color: #222; font-size: 11px;">[ 點擊螢幕 返回現實 ]</div>
 </div>
 
 <script>
@@ -55,7 +64,8 @@
         "你仲等佢覆？人哋可能開緊房，得你一個喺度狂碌IG睇佢上線未。",
         "醒啦！佢話「想靜下」，其實只係想「冇你喺身邊咁靜下」。",
         "佢唔覆你但係狂出Threads，擺明就係完全唔在乎你感受。",
-        "你以為自己係特別？其實你只係佢寂寞嗰陣嘅其中一個水槽。"
+        "你以為自己係特別？其實你只係佢寂寞嗰陣嘅其中一個水槽。",
+        "望下你自己，為咗個唔愛你嘅人頹成咁，值得咩？"
     ];
 
     function updateUI() {
@@ -70,18 +80,21 @@
         const overlay = document.getElementById('overlay');
         const content = document.getElementById('content');
         const payArea = document.getElementById('payArea');
+        const payMePic = document.getElementById('payMePic');
 
-        if (!msg) { alert("寫啲嘢先啦！"); return; }
+        if (!msg) { alert("寫啲嘢落去先可以落地獄！"); return; }
 
-        // 1. 先判定有冇能量
+        // --- 1. 判定收費阻斷 ---
         if (energy <= 0) {
-            content.innerHTML = "💔 免費額度已用完<br><span style='font-size:18px; color:#fff;'>現實係殘酷嘅，想醒就要畀錢。</span>";
+            content.innerHTML = "💔 免費額度已用完";
+            // 已根據女皇紅圈改名為 payme.png
+            payMePic.src = "payme.png"; 
             payArea.style.display = "block";
             overlay.style.display = "flex";
-            return; // 直接斷開，唔畀睇語錄
+            return;
         }
 
-        // 2. 判定 40 日鬧人
+        // --- 2. 判定內容顯示 ---
         let finalMsg = "";
         if (d >= 40) {
             finalMsg = "你醒下啦，過 40 日根本就係浪費時間，精力，青春。你不如用呢啲時間充實下自己，搵過下家啦，話唔定人哋已經有人接咗手喇";
@@ -89,15 +102,15 @@
             finalMsg = truths[Math.floor(Math.random() * truths.length)];
         }
 
-        // 3. 顯示語錄
+        // --- 3. 執行顯示與扣分 ---
         content.innerText = finalMsg;
         payArea.style.display = "none";
         overlay.style.display = "flex";
 
-        // 4. 扣能量
         energy--;
         document.getElementById('ebText').innerText = "Free Trials: " + energy + " / 5";
     }
 </script>
+
 </body>
 </html>
