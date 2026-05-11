@@ -6,27 +6,22 @@
     <title>地獄之鏡 | Rebirth</title>
     <style>
         :root { --danger: #ff3333; --bg: #0a0a0a; --card: #1a1a1a; }
-        * { box-sizing: border-box; font-family: "PingFang HK", "Microsoft JhengHei", sans-serif; }
+        * { box-sizing: border-box; font-family: "PingFang HK", sans-serif; }
         body { background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; min-height: 100vh; }
-        
         @keyframes quake { 0% { transform: translate(2px, 1px); } 50% { transform: translate(-3px, -2px); } 100% { transform: translate(1px, 2px); } }
         .shaking { animation: quake 0.1s infinite; }
-
         .app-container { width: 100%; max-width: 400px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
         .energy-bar { color: var(--danger); font-size: 13px; font-weight: bold; margin-bottom: 25px; }
-
         .card { width: 100%; background: var(--card); border: 1px solid #333; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; }
         .day-input { background: transparent; border: none; border-bottom: 2px solid var(--danger); color: var(--danger); font-size: 60px; width: 140px; text-align: center; outline: none; font-weight: bold; }
-        
         textarea { width: 100%; height: 80px; background: transparent; border: none; color: #ccc; font-size: 16px; outline: none; resize: none; text-align: center; }
-        
         .btn-hell { background: var(--danger); color: white; border: none; width: 100%; padding: 20px; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(255, 51, 51, 0.3); }
-
         .price-tag { margin-top: 30px; font-size: 11px; color: #444; text-align: center; line-height: 1.8; width: 100%; }
-
-        /* 彈出層 */
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); color: var(--danger); z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; }
+        
+        /* 彈出遮罩層 */
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); color: var(--danger); z-index: 999; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; cursor: pointer; }
         #content { font-size: 24px; font-weight: 900; line-height: 1.6; white-space: pre-wrap; }
+        .pay-code { color: #555; font-size: 14px; margin-top: 20px; border: 1px dashed #555; padding: 10px; }
     </style>
 </head>
 <body id="body">
@@ -47,55 +42,62 @@
 
 <div id="overlay" onclick="this.style.display='none'">
     <div id="content"></div>
-    <div style="margin-top: 50px; color: #333; font-size: 12px;">( 點擊螢幕 返回現實 )</div>
+    <div id="payArea" style="display:none;">
+        <div class="pay-code">入數後請截圖傳回：PayMe 9XXX XXXX</div>
+        <div style="margin-top: 20px; font-size: 14px; color: #fff;">[ 畀錢買返條命 ]</div>
+    </div>
+    <div id="footerText" style="margin-top: 50px; color: #333; font-size: 12px;">( 點擊螢幕 返回現實 )</div>
 </div>
 
 <script>
     let energy = 5;
-
-    // 呢度係最易死機嘅位，奴才已經幫女皇寫死咗格式，千祈唔好郁啲引號
     const truths = [
         "你仲等佢覆？人哋可能開緊房，得你一個喺度狂碌IG睇佢上線未。",
         "醒啦！佢話「想靜下」，其實只係想「冇你喺身邊咁靜下」。",
         "佢唔覆你但係狂出Threads，擺明就係完全唔在乎你感受。",
-        "你以為自己係特別？其實你只係佢寂寞嗰陣嘅其中一個水槽。",
-        "望下你自己，為咗個唔愛你嘅人頹成咁，值得咩？"
+        "你以為自己係特別？其實你只係佢寂寞嗰陣嘅其中一個水槽。"
     ];
 
     function updateUI() {
         const d = parseInt(document.getElementById('days').value) || 0;
-        const b = document.getElementById('body');
-        if (d >= 40) { b.classList.add('shaking'); } 
-        else { b.classList.remove('shaking'); }
+        if (d >= 40) document.getElementById('body').classList.add('shaking');
+        else document.getElementById('body').classList.remove('shaking');
     }
 
     function launch() {
         const d = parseInt(document.getElementById('days').value) || 0;
         const msg = document.getElementById('msg').value.trim();
-        
-        if (!msg) {
-            alert("寫啲嘢落去先可以落地獄！");
-            return;
+        const overlay = document.getElementById('overlay');
+        const content = document.getElementById('content');
+        const payArea = document.getElementById('payArea');
+
+        if (!msg) { alert("寫啲嘢先啦！"); return; }
+
+        // 1. 先判定有冇能量
+        if (energy <= 0) {
+            content.innerHTML = "💔 免費額度已用完<br><span style='font-size:18px; color:#fff;'>現實係殘酷嘅，想醒就要畀錢。</span>";
+            payArea.style.display = "block";
+            overlay.style.display = "flex";
+            return; // 直接斷開，唔畀睇語錄
         }
 
-        let result = "";
+        // 2. 判定 40 日鬧人
+        let finalMsg = "";
         if (d >= 40) {
-            result = "你醒下啦，過 40 日根本就係浪費時間，精力，青春。你不如用呢啲時間充實下自己，搵過下家啦，話唔定人哋已經有人接咗手喇";
+            finalMsg = "你醒下啦，過 40 日根本就係浪費時間，精力，青春。你不如用呢啲時間充實下自己，搵過下家啦，話唔定人哋已經有人接咗手喇";
         } else {
-            result = truths[Math.floor(Math.random() * truths.length)];
+            finalMsg = truths[Math.floor(Math.random() * truths.length)];
         }
 
-        document.getElementById('content').innerText = result;
-        document.getElementById('overlay').style.display = 'flex';
+        // 3. 顯示語錄
+        content.innerText = finalMsg;
+        payArea.style.display = "none";
+        overlay.style.display = "flex";
 
-        if (energy > 0) {
-            energy--;
-            document.getElementById('ebText').innerText = "Free Trials: " + energy + " / 5";
-        } else {
-            document.getElementById('ebText').innerText = "Trial Ended: $5 / Request";
-        }
+        // 4. 扣能量
+        energy--;
+        document.getElementById('ebText').innerText = "Free Trials: " + energy + " / 5";
     }
 </script>
-
 </body>
 </html>
